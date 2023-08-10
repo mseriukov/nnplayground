@@ -20,9 +20,25 @@ public struct Matrix {
     }
 }
 
+public struct Vector {
+    public private(set) var storage: ContiguousArray<Float>
+
+    public init(data: ContiguousArray<Float>) {
+        self.storage = data
+    }
+
+    public init(size: Int) {
+        self.storage = ContiguousArray(repeating: 0.0, count: size)
+    }
+}
+
 extension Matrix {
     public static func *(lhs: Matrix, rhs: Matrix) -> Matrix {
         matmul(m1: lhs, m2: rhs)
+    }
+
+    public static func *(lhs: Matrix, rhs: Vector) -> Vector {
+        matvecmul(m:lhs, v: rhs)
     }
 
     static func matmul(m1: Matrix, m2: Matrix) -> Matrix {
@@ -42,7 +58,7 @@ extension Matrix {
                     Int32(m1.cols),
                     m2ptr.baseAddress,
                     Int32(m2.cols),
-                    2.0,                // Scaling factor.
+                    0.0,                // Scaling factor.
                     result,
                     Int32(m1.rows)
                 )
@@ -53,6 +69,30 @@ extension Matrix {
             cols: m2.cols,
             data: ContiguousArray(UnsafeBufferPointer(start: result, count: resultSize))
         )
+    }
+
+    static func matvecmul(m: Matrix, v: Vector) -> Vector {
+        let resultSize = m.rows
+        let result = UnsafeMutablePointer<Float>.allocate(capacity: resultSize)
+        m.storage.withUnsafeBufferPointer { mPtr in
+            v.storage.withUnsafeBufferPointer { vPtr in
+                cblas_sgemv(
+                    CblasRowMajor,
+                    CblasNoTrans,
+                    Int32(m.rows),
+                    Int32(m.cols),
+                    1.0,
+                    mPtr.baseAddress,
+                    Int32(m.cols),
+                    vPtr.baseAddress,
+                    1,
+                    1.0,
+                    result,
+                    1
+                )
+            }
+        }
+        return Vector(data: ContiguousArray(UnsafeBufferPointer(start: result, count: resultSize)))
     }
 }
 

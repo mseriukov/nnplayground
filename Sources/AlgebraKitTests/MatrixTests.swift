@@ -23,5 +23,22 @@ final class MatrixTests: XCTestCase {
             70.0, 70.0, 70.0
         ])
     }
+
+    func test_matvecmul() throws {
+        let m = Matrix(rows: 3, cols: 3, data: [
+            1.0, 2.0, 3.0,
+            4.0, 5.0, 6.0,
+            7.0, 8.0, 9.0,
+        ])
+        let v = Vector(data: [ 1.0, 1.0, 1.0])
+
+        let r = m * v
+
+        XCTAssertEqual(r.storage, [6.0, 15.0, 24.0])
+    }
+
+
 }
+
+
 
