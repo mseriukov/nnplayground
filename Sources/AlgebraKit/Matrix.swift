@@ -40,6 +40,9 @@ public struct Matrix {
 }
 
 extension Matrix {
+    public static func random(rows: Int, cols: Int) -> Matrix {
+        Matrix(rows: rows, cols: cols, data: ContiguousArray((0..<(rows*cols)).map { _ in Float.random(in: -1...1) }))
+    }
 
     public func transposed() -> Matrix {
         Matrix.transpose(self)
