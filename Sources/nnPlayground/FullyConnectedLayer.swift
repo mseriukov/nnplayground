@@ -1,7 +1,7 @@
 import AlgebraKit
 import Accelerate
 
-class FullyConnectedLayer {
+class FullyConnectedLayer: Layer {
     let inputSize: Int
     let outputSize: Int
     let activation: Activation
@@ -9,12 +9,12 @@ class FullyConnectedLayer {
     // [rows       x columns  ]
     // [outputSize x inputSize]
     private(set) var weight: Matrix
-    private(set) var wgrad: Matrix
+    private(set) var wgrad: Matrix?
 
     // [rows x columns   ]
     // [1    x outputSize]
     private(set) var bias: Matrix
-    private(set) var bgrad: Matrix
+    private(set) var bgrad: Matrix?
 
     // [rows x columns  ]
     // [1    x inputSize]
@@ -37,23 +37,22 @@ class FullyConnectedLayer {
         self.outputSize = outputSize
         self.activation = activation
 
-        weight = Matrix(rows: outputSize, cols: inputSize)
-        wgrad = Matrix(as: weight)
-
+        weight = Matrix.random(rows: outputSize, cols: inputSize)
         bias = Matrix(rows: 1, cols: outputSize)
-        bgrad =  Matrix(as: bias)
 
         weighedInput = Matrix(rows: 1, cols: outputSize)
 
         input = Matrix(rows: 1, cols: inputSize)
         output = Matrix(rows: 1, cols: outputSize)
+
+        resetGrad()
     }
 
     func forward(input: Matrix) {
         assert(input.cols == inputSize, "Input size \(input.cols) doesn't match expected \(inputSize).")
         self.input = input
         weighedInput = Matrix.matmul(m1: weight, m2: input.transposed()) + bias
-        output = activation.forward(weighedInput)
+        output = activation.forward(weighedInput).transposed()
     }
 
     func backward(localGradient: Matrix) {
@@ -61,5 +60,10 @@ class FullyConnectedLayer {
         let dL = localGradient.transposed() * activation.backward(weighedInput)
         wgrad = Matrix.matmul(m1: dL, m2: input)
         bgrad = dL
+    }
+
+    func resetGrad() {
+        wgrad = Matrix(as: weight)
+        bgrad = Matrix(as: bias)
     }
 }
