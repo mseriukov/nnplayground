@@ -118,3 +118,29 @@ extension Matrix {
         )
     }
 }
+
+extension Matrix: CustomDebugStringConvertible {
+    private static var valueFormatter: NumberFormatter = {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .decimal
+        formatter.decimalSeparator = "."
+        formatter.minimumIntegerDigits = 2
+        formatter.maximumIntegerDigits = 2
+        formatter.minimumFractionDigits = 2
+        formatter.maximumFractionDigits = 2
+        return formatter
+    }()
+
+    public var debugDescription: String {
+        var result = ""
+        result += "[\(rows), \(cols)]\n"
+        for r in 0..<rows {
+            var rowNums: [Float] = []
+            for c in 0..<cols {
+                rowNums.append(storage[r * cols + c])
+            }
+            result += "[\(rowNums.map({ Matrix.valueFormatter.string(from: NSNumber(value: $0)) ?? "" }).joined(separator: ", "))]\n"
+        }
+        return result
+    }
+}
