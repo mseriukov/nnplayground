@@ -136,7 +136,7 @@ extension Matrix: CustomDebugStringConvertible {
 
     public var debugDescription: String {
         var result = ""
-        result += "[\(rows), \(cols)]\n"
+        result += "[rows: \(rows), cols: \(cols)]\n"
         for r in 0..<rows {
             var rowNums: [Float] = []
             for c in 0..<cols {
