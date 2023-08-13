@@ -58,8 +58,8 @@ class FullyConnectedLayer: Layer {
     func backward(localGradient: Matrix) -> Matrix {
         assert(localGradient.cols == outputSize, "Loss local gradint size \(localGradient.cols) doesn't match expected \(outputSize).")
         let dL = Matrix.elementwiseMul(m1: localGradient, m2: activation.backward(weighedInput))
-        wgrad = wgrad + Matrix.matmul(m1: dL.transposed(), m2: input)
-        bgrad = bgrad + dL
+        wgrad = Matrix.matmul(m1: dL.transposed(), m2: input)
+        bgrad = dL
         return (weight.transposed() * dL.transposed()).transposed()
     }
 

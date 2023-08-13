@@ -6,8 +6,8 @@ import AlgebraKit
 
 class MLPTests {
     let network: [any Layer] = [
-        FullyConnectedLayer(inputSize: 784, outputSize: 100, activation: .sigmoid),
-        FullyConnectedLayer(inputSize: 100, outputSize: 10, activation: .sigmoid)
+        FullyConnectedLayer(inputSize: 784, outputSize: 500, activation: .relu),
+        FullyConnectedLayer(inputSize: 500, outputSize: 10, activation: .relu)
     ]
 
     func run(url: URL, testURL: URL) throws {
@@ -17,7 +17,7 @@ class MLPTests {
             defer { reader.close() }
             // Discard labels.
 
-            let learningRate: Float = 0.01
+            let learningRate: Float = 0.000000001
             _ =  try reader.readLine(maxLength: 16536)
             while true {
                 guard let line = try reader.readLine(maxLength: 16536) else { break }
@@ -25,7 +25,7 @@ class MLPTests {
 
                 forward(input: input)
                 let errorLocalGrad = loss(output: network.last!.output, expected: expected)
-                print(sqrt(errorLocalGrad.storage.map({ $0 * $0 }).reduce(0.0, +)))
+                print("\(fromOneHot(network.last!.output) ) - \(fromOneHot(expected))")
                 backward(localGradient: errorLocalGrad)
                 network.forEach { $0.updateWeights(eta: learningRate) }
                 network.forEach { $0.resetGrad() }
@@ -53,10 +53,10 @@ class MLPTests {
             .trimmingCharacters(in: .whitespacesAndNewlines)
             .split(separator: ",")
             .compactMap { Float($0) }
-        var expected = Matrix(rows: 1, cols: 10, repeating: 0)
-        expected[0, Int(nums.first!)] = 1.0
-
+        var expected = oneHot(outputLen: 10, n: Int(nums.first!))
         var input = Matrix(rows: 1, cols: 784, data: ContiguousArray(nums.dropFirst()))
+
+        // TODO: normalize with mean/STD
         input = input / 255.0
         return (
             input: input,
@@ -66,5 +66,15 @@ class MLPTests {
 
     private func loss(output: Matrix, expected: Matrix) -> Matrix {
         output - expected
+    }
+
+    private func oneHot(outputLen: Int, n: Int) -> Matrix {
+        var expected = Matrix(rows: 1, cols: outputLen, repeating: 0)
+        expected[0, n] = 1.0
+        return expected
+    }
+
+    private func fromOneHot(_ m: Matrix) -> Int {
+        return m.storage.indices.max(by: { m.storage[$0] < m.storage[$1] })!
     }
 }
