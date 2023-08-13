@@ -9,12 +9,12 @@ class FullyConnectedLayer: Layer {
     // [rows       x columns  ]
     // [outputSize x inputSize]
     private(set) var weight: Matrix
-    private(set) var wgrad: Matrix?
+    private(set) var wgrad: Matrix!
 
     // [rows x columns   ]
     // [1    x outputSize]
     private(set) var bias: Matrix
-    private(set) var bgrad: Matrix?
+    private(set) var bgrad: Matrix!
 
     // [rows x columns  ]
     // [1    x inputSize]
@@ -51,15 +51,21 @@ class FullyConnectedLayer: Layer {
     func forward(input: Matrix) {
         assert(input.cols == inputSize, "Input size \(input.cols) doesn't match expected \(inputSize).")
         self.input = input
-        weighedInput = Matrix.matmul(m1: weight, m2: input.transposed()) + bias
-        output = activation.forward(weighedInput).transposed()
+        weighedInput = Matrix.matmul(m1: weight, m2: input.transposed()).transposed() + bias
+        output = activation.forward(weighedInput)
     }
 
-    func backward(localGradient: Matrix) {
+    func backward(localGradient: Matrix) -> Matrix {
         assert(localGradient.cols == outputSize, "Loss local gradint size \(localGradient.cols) doesn't match expected \(outputSize).")
-        let dL = localGradient.transposed() * activation.backward(weighedInput)
-        wgrad = Matrix.matmul(m1: dL, m2: input)
-        bgrad = dL
+        let dL = Matrix.elementwiseMul(m1: localGradient, m2: activation.backward(weighedInput))
+        wgrad = wgrad + Matrix.matmul(m1: dL.transposed(), m2: input)
+        bgrad = bgrad + dL
+        return (weight.transposed() * dL.transposed()).transposed()
+    }
+
+    func updateWeights(eta: Float) {
+        weight = weight - wgrad * eta
+        bias = bias - bgrad * eta
     }
 
     func resetGrad() {

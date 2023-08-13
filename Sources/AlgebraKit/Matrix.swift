@@ -12,6 +12,21 @@ public struct Matrix {
         self.storage = data
     }
 
+    private func indexIsValid(row: Int, col: Int) -> Bool {
+        row >= 0 && row < rows && col >= 0 && col < cols
+    }
+
+    public subscript(row: Int, col: Int) -> Float {
+        get {
+            assert(indexIsValid(row: row, col: col), "Index out of range")
+            return storage[(row * cols) + col]
+        }
+        set {
+            assert(indexIsValid(row: row, col: col), "Index out of range")
+            storage[(row * cols) + col] = newValue
+        }
+    }
+
     public init(rows: Int, cols: Int, data: ContiguousArray<Float>) {
         assert(data.count == rows * cols)
         self.rows = rows
@@ -51,6 +66,7 @@ extension Matrix {
     public static func transpose(_ m: Matrix) -> Matrix {
         let resultSize = m.rows * m.cols
         let result = UnsafeMutablePointer<Float>.allocate(capacity: resultSize)
+        defer { result.deallocate() }
         m.storage.withUnsafeBufferPointer { mPtr in
             vDSP_mtrans(
                 mPtr.baseAddress!,
@@ -73,19 +89,47 @@ extension Matrix {
     }
 
     public static func +(lhs: Matrix, rhs: Matrix) -> Matrix {
-        Matrix(rows: lhs.rows, cols: lhs.cols, data: ContiguousArray(vDSP.add(lhs.storage, rhs.storage)))
+        assert(lhs.rows == rhs.rows && lhs.cols == rhs.cols)
+        return Matrix(rows: lhs.rows, cols: lhs.cols, data: ContiguousArray(vDSP.add(lhs.storage, rhs.storage)))
     }
 
-    public static func *(lhs: Matrix, rhs: Float) -> Matrix {
-        rhs * lhs
+    public static func +(lhs: Matrix, rhs: Float) -> Matrix {
+        Matrix(rows: lhs.rows, cols: lhs.cols, data: ContiguousArray(vDSP.add(rhs, lhs.storage)))
+    }
+
+    public static func +(lhs: Float, rhs: Matrix) -> Matrix {
+        rhs + lhs
+    }
+
+    public static func -(lhs: Matrix, rhs: Float) -> Matrix {
+        lhs + (-rhs)
     }
 
     public static func *(lhs: Float, rhs: Matrix) -> Matrix {
         Matrix(rows: rhs.rows, cols: rhs.cols, data: ContiguousArray(vDSP.multiply(lhs, rhs.storage)))
     }
 
+    public static func *(lhs: Matrix, rhs: Float) -> Matrix {
+        rhs * lhs
+    }
+
+    public static func /(lhs: Matrix, rhs: Float) -> Matrix {
+        lhs * (1.0 / rhs)
+    }
+
     public static func -(lhs: Matrix, rhs: Matrix) -> Matrix {
-        Matrix(rows: rhs.rows, cols: rhs.cols, data: ContiguousArray(vDSP.subtract(lhs.storage, rhs.storage)))
+        assert(lhs.rows == rhs.rows && lhs.cols == rhs.cols)
+        return Matrix(rows: rhs.rows, cols: rhs.cols, data: ContiguousArray(vDSP.subtract(lhs.storage, rhs.storage)))
+    }
+
+    public static func elementwiseMul(
+        m1: Matrix,
+        m2: Matrix
+    ) -> Matrix {
+        assert(m1.rows == m2.rows && m1.cols == m2.cols)
+        var result = ContiguousArray<Float>(repeating: 0, count: m1.rows * m1.cols)
+        vDSP.multiply(m1.storage, m2.storage, result: &result)
+        return Matrix(as: m1, data: ContiguousArray(result))
     }
 
     public static func matmul(
@@ -94,6 +138,7 @@ extension Matrix {
     ) -> Matrix {
         let resultSize = m1.rows * m2.cols
         let result = UnsafeMutablePointer<Float>.allocate(capacity: resultSize)
+        defer { result.deallocate() }
         m1.storage.withUnsafeBufferPointer { m1ptr in
             m2.storage.withUnsafeBufferPointer { m2ptr in
                 cblas_sgemm(
