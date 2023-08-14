@@ -15,6 +15,7 @@ class MLPTests {
     func run(url: URL, testURL: URL) throws {
         for i in 0..<10 {
             var matches = 0
+            var total = 0
             print("epoch: \(i)")
             do {
                 let reader = FileReader(fileURL: url)
@@ -22,7 +23,7 @@ class MLPTests {
                 defer { reader.close() }
                 // Discard labels.
 
-                let learningRate: Float = 0.1
+                let learningRate: Float = 0.01
                 _ =  try reader.readLine(maxLength: 16536)
                 var shouldStop = false
                 while !shouldStop {
@@ -38,14 +39,14 @@ class MLPTests {
                         let fwhOut = fromOneHot(output)
                         let fwhExp = fromOneHot(expected)
                         matches += fwhOut == fwhExp ? 1 : 0
-                        //print("\(output.storage) - \(fwhExp)")
+                        total += 1
                         backward(localGradient: errorLocalGrad)
                         network.forEach { $0.updateWeights(eta: learningRate) }
                         network.forEach { $0.resetGrad() }
                     }
                 }
             }
-            print("matches: \(matches)")
+            print("accuracy: \(Float(matches) / Float(total))")
         }
     }
 
