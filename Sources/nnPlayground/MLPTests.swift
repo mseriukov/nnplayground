@@ -1,35 +1,51 @@
 import Foundation
 import cnnutils
 import AlgebraKit
+import NNKit
 
 // MNIST dataset is from https://www.kaggle.com/datasets/oddrationale/mnist-in-csv
 
 class MLPTests {
     let network: [any Layer] = [
-        FullyConnectedLayer(inputSize: 784, outputSize: 500, activation: .relu),
-        FullyConnectedLayer(inputSize: 500, outputSize: 10, activation: .relu)
+        FullyConnectedLayer(inputSize: 784, outputSize: 500, activation: .sigmoid),
+        FullyConnectedLayer(inputSize: 500, outputSize: 32, activation: .sigmoid),
+        FullyConnectedLayer(inputSize: 32, outputSize: 10, activation: .sigmoid)
     ]
 
     func run(url: URL, testURL: URL) throws {
-        do {
-            let reader = FileReader(fileURL: url)
-            try reader.open()
-            defer { reader.close() }
-            // Discard labels.
+        for i in 0..<10 {
+            var matches = 0
+            print("epoch: \(i)")
+            do {
+                let reader = FileReader(fileURL: url)
+                try reader.open()
+                defer { reader.close() }
+                // Discard labels.
 
-            let learningRate: Float = 0.000000001
-            _ =  try reader.readLine(maxLength: 16536)
-            while true {
-                guard let line = try reader.readLine(maxLength: 16536) else { break }
-                let (input, expected) = parseStr(line)
+                let learningRate: Float = 0.1
+                _ =  try reader.readLine(maxLength: 16536)
+                var shouldStop = false
+                while !shouldStop {
+                    try autoreleasepool {
+                        guard let line = try reader.readLine(maxLength: 16536) else { shouldStop = true; return }
+                        let (input, expected) = parseStr(line)
 
-                forward(input: input)
-                let errorLocalGrad = loss(output: network.last!.output, expected: expected)
-                print("\(fromOneHot(network.last!.output) ) - \(fromOneHot(expected))")
-                backward(localGradient: errorLocalGrad)
-                network.forEach { $0.updateWeights(eta: learningRate) }
-                network.forEach { $0.resetGrad() }
+                        forward(input: input)
+                        let output = network.last!.output
+
+                        let errorLocalGrad = loss(output: output, expected: expected)
+
+                        let fwhOut = fromOneHot(output)
+                        let fwhExp = fromOneHot(expected)
+                        matches += fwhOut == fwhExp ? 1 : 0
+                        //print("\(output.storage) - \(fwhExp)")
+                        backward(localGradient: errorLocalGrad)
+                        network.forEach { $0.updateWeights(eta: learningRate) }
+                        network.forEach { $0.resetGrad() }
+                    }
+                }
             }
+            print("matches: \(matches)")
         }
     }
 
@@ -56,8 +72,14 @@ class MLPTests {
         var expected = oneHot(outputLen: 10, n: Int(nums.first!))
         var input = Matrix(rows: 1, cols: 784, data: ContiguousArray(nums.dropFirst()))
 
-        // TODO: normalize with mean/STD
-        input = input / 255.0
+        let mean = input.storage.reduce(0.0, +) / Float(input.storage.count)
+
+        let diffsq = input.storage.map({ ($0 - mean) * ($0 - mean) })
+        let std_ = diffsq.reduce(0.0, +) / Float(input.storage.count)
+        let std = sqrt(std_)
+
+        input = Matrix(as: input, data: ContiguousArray(input.storage.map { ($0 - mean) / std }))
+
         return (
             input: input,
             expected: expected

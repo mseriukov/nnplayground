@@ -1,12 +1,12 @@
 import Foundation
 import AlgebraKit
 
-enum Activation {
+public enum Activation {
     case sigmoid
     case relu
     case none
 
-    var forward: (Matrix) -> Matrix {
+    public var forward: (Matrix) -> Matrix {
         switch self {
         case .sigmoid:
             // This is probably slow as hell.
@@ -20,7 +20,7 @@ enum Activation {
         }
     }
 
-    var backward: (Matrix) -> Matrix {
+    public var backward: (Matrix) -> Matrix {
         switch self {
         case .sigmoid:
             // This is probably slow as hell.

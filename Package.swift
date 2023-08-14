@@ -17,7 +17,8 @@ let package = Package(
             dependencies: [
                 .product(name: "ArgumentParser", package: "swift-argument-parser"),
                 "cnnutils",
-                "AlgebraKit"
+                "AlgebraKit",
+                "NNKit"
             ],
             path: "Sources/nnplayground",
             swiftSettings: [.define("ACCELERATE_NEW_LAPACK"), .define("ACCELERATE_LAPACK_ILP64")]
@@ -38,6 +39,20 @@ let package = Package(
                 "AlgebraKit",
             ],
             path: "Sources/AlgebraKitTests"
+        ),
+        .target(
+            name: "NNKit",
+            dependencies: [
+                "AlgebraKit", "cnnutils"
+            ],
+            path: "Sources/NNKit"
+        ),
+        .testTarget(
+            name: "NNKitTests",
+            dependencies: [
+                "NNKit", "AlgebraKit"
+            ],
+            path: "Sources/NNKitTests"
         )
     ]
 )

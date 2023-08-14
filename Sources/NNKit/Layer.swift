@@ -1,7 +1,8 @@
 import AlgebraKit
 
-protocol Layer {
+public protocol Layer {
     var weight: Matrix { get }
+    var wgrad: Matrix { get }
     var output: Matrix { get }
     
     func forward(input: Matrix)
