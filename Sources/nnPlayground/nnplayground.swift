@@ -1,5 +1,7 @@
 import ArgumentParser
 import Foundation
+import AppKit
+import SwiftUI
 
 @main
 struct nnplayground: ParsableCommand {
@@ -26,4 +28,3 @@ struct nnplayground: ParsableCommand {
         }
     }
 }
-

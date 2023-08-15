@@ -22,9 +22,9 @@ class MLPTests {
                 try reader.open()
                 defer { reader.close() }
                 // Discard labels.
-
-                let learningRate: Float = 0.01
                 _ =  try reader.readLine(maxLength: 16536)
+
+                let learningRate: Float = 0.1
                 var shouldStop = false
                 while !shouldStop {
                     try autoreleasepool {
@@ -48,6 +48,32 @@ class MLPTests {
             }
             print("accuracy: \(Float(matches) / Float(total))")
         }
+        print("Verify on test set.")
+        var matches = 0
+        var total = 0
+        do {
+            let reader = FileReader(fileURL: testURL)
+            try reader.open()
+            defer { reader.close() }
+            // Discard labels.
+            _ =  try reader.readLine(maxLength: 16536)
+
+            var shouldStop = false
+            while !shouldStop {
+                try autoreleasepool {
+                    guard let line = try reader.readLine(maxLength: 16536) else { shouldStop = true; return }
+                    let (input, expected) = parseStr(line)
+
+                    forward(input: input)
+                    let output = network.last!.output
+                    let fwhOut = fromOneHot(output)
+                    let fwhExp = fromOneHot(expected)
+                    matches += fwhOut == fwhExp ? 1 : 0
+                    total += 1
+                }
+            }
+        }
+        print("accuracy: \(Float(matches) / Float(total))")
     }
 
     func forward(input: Matrix) {
