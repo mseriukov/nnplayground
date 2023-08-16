@@ -12,6 +12,10 @@ public struct Matrix {
         self.storage = data
     }
 
+    public static var zero: Matrix {
+        Matrix(rows: 0, cols: 0, data: [])
+    }
+
     private func indexIsValid(row: Int, col: Int) -> Bool {
         row >= 0 && row < rows && col >= 0 && col < cols
     }

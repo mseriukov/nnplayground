@@ -4,7 +4,6 @@ import Accelerate
 public class FullyConnectedLayer: Layer {
     public let inputSize: Int
     public let outputSize: Int
-    public let activation: Activation
 
     // [rows       x columns   ]
     // [inputSize  x outputSize]
@@ -31,13 +30,11 @@ public class FullyConnectedLayer: Layer {
     public init(
         inputSize: Int,
         outputSize: Int,
-        activation: Activation,
         weight: Matrix? = nil,
         bias: Matrix? = nil
     ) {
         self.inputSize = inputSize
         self.outputSize = outputSize
-        self.activation = activation
 
         self.weight = weight ?? Matrix.random(rows: inputSize, cols: outputSize)
         self.bias = bias ?? Matrix.random(rows: 1, cols: outputSize)
@@ -53,21 +50,19 @@ public class FullyConnectedLayer: Layer {
     public func forward(_ input: Matrix) -> Matrix {
         assert(input.cols == inputSize, "Input size \(input.cols) doesn't match expected \(inputSize).")
         self.input = input
-        weighedInput = Matrix.matmul(m1: weight.transposed(), m2: input.transposed()).transposed() + bias
-        return activation.forward(weighedInput)
+        return Matrix.matmul(m1: weight.transposed(), m2: input.transposed()).transposed() + bias
     }
 
     public func backward(_ localGradient: Matrix) -> Matrix {
         assert(localGradient.cols == outputSize, "Loss local gradint size \(localGradient.cols) doesn't match expected \(outputSize).")
-        let dL = Matrix.elementwiseMul(m1: localGradient, m2: activation.backward(weighedInput))
-        wgrad = Matrix.matmul(m1: dL.transposed(), m2: input).transposed()
-        bgrad = dL
-        return (weight * dL.transposed()).transposed()
+        wgrad = Matrix.matmul(m1: localGradient.transposed(), m2: input).transposed()
+        bgrad = localGradient
+        return (weight * localGradient.transposed()).transposed()
     }
 
-    public func updateParameters(learningRate: Float) {
-        weight = weight - wgrad * learningRate
-        bias = bias - bgrad * learningRate
+    public func updateParameters(eta: Float) {
+        weight = weight - wgrad * eta
+        bias = bias - bgrad * eta
         resetGrad()
     }
 
