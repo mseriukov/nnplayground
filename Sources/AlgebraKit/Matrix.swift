@@ -31,6 +31,24 @@ public struct Matrix {
         }
     }
 
+    public static func identity(size: Int) -> Matrix {
+        var m = Matrix(rows: size, cols: size, repeating: 0.0)
+        for i in 0..<size {
+            m[i, i] = 1.0
+        }
+        return m
+    }
+
+    public static func diagonal(from im: Matrix) -> Matrix {
+        assert(im.rows == 1)
+        let size = im.cols
+        var m = Matrix(rows: size, cols: size, repeating: 0.0)
+        for i in 0..<size {
+            m[i, i] = im[0, i]
+        }
+        return m
+    }
+
     public init(rows: Int, cols: Int, data: [Float]) {
         assert(data.count == rows * cols)
         self.rows = rows

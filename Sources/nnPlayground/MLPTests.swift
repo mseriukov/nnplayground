@@ -7,11 +7,11 @@ import NNKit
 
 class MLPTests {
     let network: [any Layer] = [
-        FullyConnectedLayer(inputSize: 784, outputSize: 500),
+        LinearLayer(inputSize: 784, outputSize: 500),
         ActivationLayer(.sigmoid),
-        FullyConnectedLayer(inputSize: 500, outputSize: 32),
+        LinearLayer(inputSize: 500, outputSize: 32),
         ActivationLayer(.sigmoid),
-        FullyConnectedLayer(inputSize: 32, outputSize: 10),
+        LinearLayer(inputSize: 32, outputSize: 10),
         ActivationLayer(.sigmoid),
     ]
 

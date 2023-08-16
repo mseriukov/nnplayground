@@ -10,10 +10,9 @@ final class BackpropTests: XCTestCase {
        super.setUp()
 
        nn = [
-        FullyConnectedLayer(
+        LinearLayer(
             inputSize: 2,
             outputSize: 2,
-            activation: .none,
             weight: Matrix(rows: 2, cols: 2, data: [
                 0.11, 0.21,
                 0.12, 0.08
@@ -22,10 +21,9 @@ final class BackpropTests: XCTestCase {
                 0.0, 0.0
             ])
         ),
-        FullyConnectedLayer(
+        LinearLayer(
             inputSize: 2,
             outputSize: 1,
-            activation: .none,
             weight: Matrix(rows: 2, cols: 1, data: [
                 0.14, 0.15,
             ]),

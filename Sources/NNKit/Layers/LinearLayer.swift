@@ -1,7 +1,7 @@
 import AlgebraKit
 import Accelerate
 
-public class FullyConnectedLayer: Layer {
+public class LinearLayer: Layer {
     public let inputSize: Int
     public let outputSize: Int
 
