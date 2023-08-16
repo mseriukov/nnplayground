@@ -2,11 +2,11 @@ import Foundation
 import Accelerate
 
 public struct Matrix {
-    public private(set) var storage: ContiguousArray<Float>
+    public private(set) var storage: [Float]
     public private(set) var rows: Int
     public private(set) var cols: Int
 
-    public init(_ data: ContiguousArray<Float>) {
+    public init(_ data: [Float]) {
         self.rows = 1
         self.cols = data.count
         self.storage = data
@@ -27,7 +27,7 @@ public struct Matrix {
         }
     }
 
-    public init(rows: Int, cols: Int, data: ContiguousArray<Float>) {
+    public init(rows: Int, cols: Int, data: [Float]) {
         assert(data.count == rows * cols)
         self.rows = rows
         self.cols = cols
@@ -37,26 +37,26 @@ public struct Matrix {
     public init(rows: Int, cols: Int, repeating constant: Float = 0.0) {
         self.rows = rows
         self.cols = cols
-        self.storage = ContiguousArray(repeating: constant, count: rows * cols)
+        self.storage = Array(repeating: constant, count: rows * cols)
     }
 
     public init(as other: Matrix, repeating constant: Float = 0.0) {
         self.rows = other.rows
         self.cols = other.cols
-        self.storage = ContiguousArray(repeating: constant, count: rows * cols)
+        self.storage = Array(repeating: constant, count: rows * cols)
     }
 
-    public init(as other: Matrix, data: ContiguousArray<Float>) {
+    public init(as other: Matrix, data: [Float]) {
         assert(data.count == other.rows * other.cols)
         self.rows = other.rows
         self.cols = other.cols
-        self.storage = ContiguousArray(data)
+        self.storage = data
     }
 }
 
 extension Matrix {
     public static func random(rows: Int, cols: Int) -> Matrix {
-        Matrix(rows: rows, cols: cols, data: ContiguousArray((0..<(rows*cols)).map { _ in Float.random(in: -0.1...0.1) }))
+        Matrix(rows: rows, cols: cols, data: (0..<(rows*cols)).map { _ in Float.random(in: -0.1...0.1) })
     }
 
     public func transposed() -> Matrix {
@@ -80,7 +80,7 @@ extension Matrix {
         return Matrix(
             rows: m.cols,
             cols: m.rows,
-            data: ContiguousArray(UnsafeBufferPointer(start: result, count: resultSize))
+            data: Array(UnsafeBufferPointer(start: result, count: resultSize))
         )
     }
 
@@ -90,11 +90,11 @@ extension Matrix {
 
     public static func +(lhs: Matrix, rhs: Matrix) -> Matrix {
         assert(lhs.rows == rhs.rows && lhs.cols == rhs.cols)
-        return Matrix(rows: lhs.rows, cols: lhs.cols, data: ContiguousArray(vDSP.add(lhs.storage, rhs.storage)))
+        return Matrix(rows: lhs.rows, cols: lhs.cols, data: Array(vDSP.add(lhs.storage, rhs.storage)))
     }
 
     public static func +(lhs: Matrix, rhs: Float) -> Matrix {
-        Matrix(rows: lhs.rows, cols: lhs.cols, data: ContiguousArray(vDSP.add(rhs, lhs.storage)))
+        Matrix(rows: lhs.rows, cols: lhs.cols, data: Array(vDSP.add(rhs, lhs.storage)))
     }
 
     public static func +(lhs: Float, rhs: Matrix) -> Matrix {
@@ -106,7 +106,7 @@ extension Matrix {
     }
 
     public static func *(lhs: Float, rhs: Matrix) -> Matrix {
-        Matrix(rows: rhs.rows, cols: rhs.cols, data: ContiguousArray(vDSP.multiply(lhs, rhs.storage)))
+        Matrix(rows: rhs.rows, cols: rhs.cols, data: Array(vDSP.multiply(lhs, rhs.storage)))
     }
 
     public static func *(lhs: Matrix, rhs: Float) -> Matrix {
@@ -119,7 +119,7 @@ extension Matrix {
 
     public static func -(lhs: Matrix, rhs: Matrix) -> Matrix {
         assert(lhs.rows == rhs.rows && lhs.cols == rhs.cols)
-        return Matrix(rows: rhs.rows, cols: rhs.cols, data: ContiguousArray(vDSP.subtract(lhs.storage, rhs.storage)))
+        return Matrix(rows: rhs.rows, cols: rhs.cols, data: Array(vDSP.subtract(lhs.storage, rhs.storage)))
     }
 
     public static func elementwiseMul(
@@ -127,9 +127,9 @@ extension Matrix {
         m2: Matrix
     ) -> Matrix {
         assert(m1.rows == m2.rows && m1.cols == m2.cols)
-        var result = ContiguousArray<Float>(repeating: 0, count: m1.rows * m1.cols)
+        var result = Array<Float>(repeating: 0, count: m1.rows * m1.cols)
         vDSP.multiply(m1.storage, m2.storage, result: &result)
-        return Matrix(as: m1, data: ContiguousArray(result))
+        return Matrix(as: m1, data: Array(result))
     }
 
     public static func matmul(
@@ -162,7 +162,7 @@ extension Matrix {
         return Matrix(
             rows: m1.rows,
             cols: m2.cols,
-            data: ContiguousArray(UnsafeBufferPointer(start: result, count: resultSize))
+            data: Array(UnsafeBufferPointer(start: result, count: resultSize))
         )
     }
 }

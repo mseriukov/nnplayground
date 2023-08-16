@@ -14,32 +14,32 @@ final class BackpropTests: XCTestCase {
             inputSize: 2,
             outputSize: 2,
             activation: .none,
-            weight: Matrix(rows: 2, cols: 2, data: ContiguousArray<Float>([
+            weight: Matrix(rows: 2, cols: 2, data: [
                 0.11, 0.21,
                 0.12, 0.08
-            ])),
-            bias: Matrix(rows: 1, cols: 2, data: ContiguousArray<Float>([
+            ]),
+            bias: Matrix(rows: 1, cols: 2, data: [
                 0.0, 0.0
-            ]))
+            ])
         ),
         FullyConnectedLayer(
             inputSize: 2,
             outputSize: 1,
             activation: .none,
-            weight: Matrix(rows: 2, cols: 1, data: ContiguousArray<Float>([
+            weight: Matrix(rows: 2, cols: 1, data: [
                 0.14, 0.15,
-            ])),
-            bias: Matrix(rows: 1, cols: 1, data: ContiguousArray<Float>([
+            ]),
+            bias: Matrix(rows: 1, cols: 1, data: [
                 0.0
-            ]))
+            ])
         )
        ]
     }
 
     func test_forward() throws {
-        var input = Matrix(rows: 1, cols: 2, data: ContiguousArray<Float>([
+        var input = Matrix(rows: 1, cols: 2, data: [
             2.0, 3.0
-        ]))
+        ])
         for l in nn {
             l.forward(input: input)
             input = l.output
@@ -48,9 +48,9 @@ final class BackpropTests: XCTestCase {
     }
 
     func test_backward() throws {
-//        var input = Matrix(rows: 1, cols: 2, data: ContiguousArray<Float>([
+//        var input = Matrix(rows: 1, cols: 2, data: [
 //            2.0, 3.0
-//        ]))
+//        ])
 //        for l in nn {
 //            l.forward(input: input)
 //            input = l.output
@@ -63,6 +63,6 @@ final class BackpropTests: XCTestCase {
 //        print(nn[0].wgrad)
 //        print(nn[1].wgrad)
 
-        //XCTAssertEqual(input.storage, ContiguousArray<Float>([0.2533]))
+        //XCTAssertEqual(input.storage, [0.2533])
     }
 }

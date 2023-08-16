@@ -97,7 +97,7 @@ class MLPTests {
             .split(separator: ",")
             .compactMap { Float($0) }
         var expected = oneHot(outputLen: 10, n: Int(nums.first!))
-        var input = Matrix(rows: 1, cols: 784, data: ContiguousArray(nums.dropFirst()))
+        var input = Matrix(rows: 1, cols: 784, data: Array(nums.dropFirst()))
 
         let mean = input.storage.reduce(0.0, +) / Float(input.storage.count)
 
@@ -105,7 +105,7 @@ class MLPTests {
         let std_ = diffsq.reduce(0.0, +) / Float(input.storage.count)
         let std = sqrt(std_)
 
-        input = Matrix(as: input, data: ContiguousArray(input.storage.map { ($0 - mean) / std }))
+        input = Matrix(as: input, data: input.storage.map { ($0 - mean) / std })
 
         return (
             input: input,
