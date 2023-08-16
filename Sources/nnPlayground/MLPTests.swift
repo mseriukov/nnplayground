@@ -31,18 +31,15 @@ class MLPTests {
                         guard let line = try reader.readLine(maxLength: 16536) else { shouldStop = true; return }
                         let (input, expected) = parseStr(line)
 
-                        forward(input: input)
-                        let output = network.last!.output
-
+                        let output = forward(input)
                         let errorLocalGrad = loss(output: output, expected: expected)
 
                         let fwhOut = fromOneHot(output)
                         let fwhExp = fromOneHot(expected)
                         matches += fwhOut == fwhExp ? 1 : 0
                         total += 1
-                        backward(localGradient: errorLocalGrad)
-                        network.forEach { $0.updateWeights(eta: learningRate) }
-                        network.forEach { $0.resetGrad() }
+                        backward(errorLocalGrad)
+                        network.forEach { $0.updateParameters(learningRate: learningRate) }
                     }
                 }
             }
@@ -64,8 +61,7 @@ class MLPTests {
                     guard let line = try reader.readLine(maxLength: 16536) else { shouldStop = true; return }
                     let (input, expected) = parseStr(line)
 
-                    forward(input: input)
-                    let output = network.last!.output
+                    let output = forward(input)
                     let fwhOut = fromOneHot(output)
                     let fwhExp = fromOneHot(expected)
                     matches += fwhOut == fwhExp ? 1 : 0
@@ -76,19 +72,21 @@ class MLPTests {
         print("accuracy: \(Float(matches) / Float(total))")
     }
 
-    func forward(input: Matrix) {
+    func forward(_ input: Matrix) -> Matrix {
         var input: Matrix = input
         for l in network {
-            l.forward(input: input)
-            input = l.output
+            input = l.forward(input)
         }
+        return input
     }
 
-    func backward(localGradient: Matrix) {
+    @discardableResult
+    func backward(_ localGradient: Matrix) -> Matrix {
         var localGradient = localGradient
         for l in network.reversed() {
-            localGradient = l.backward(localGradient: localGradient)
+            localGradient = l.backward(localGradient)
         }
+        return localGradient
     }
 
     private func parseStr(_ s: String) -> (input: Matrix, expected: Matrix) {

@@ -41,8 +41,7 @@ final class BackpropTests: XCTestCase {
             2.0, 3.0
         ])
         for l in nn {
-            l.forward(input: input)
-            input = l.output
+            input = l.forward(input)
         }
         XCTAssertEqual(input.storage[0], 0.18, accuracy: 0.001)
     }
