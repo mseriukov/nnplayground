@@ -50,12 +50,12 @@ public class LinearLayer: Layer {
     public func forward(_ input: Matrix) -> Matrix {
         assert(input.cols == inputSize, "Input size \(input.cols) doesn't match expected \(inputSize).")
         self.input = input
-        return Matrix.matmul(m1: weight.transposed(), m2: input.transposed()).transposed() + bias
+        return matmul(weight.transposed(), input.transposed()).transposed() + bias
     }
 
     public func backward(_ localGradient: Matrix) -> Matrix {
         assert(localGradient.cols == outputSize, "Loss local gradint size \(localGradient.cols) doesn't match expected \(outputSize).")
-        wgrad = Matrix.matmul(m1: localGradient.transposed(), m2: input).transposed()
+        wgrad = matmul(localGradient.transposed(), input).transposed()
         bgrad = localGradient
         return (weight * localGradient.transposed()).transposed()
     }

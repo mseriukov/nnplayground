@@ -4,6 +4,7 @@ import Accelerate
 public enum Activation {
     case sigmoid
     case relu
+    case softmax
 }
 
 // This is probably slow as hell.
@@ -26,6 +27,10 @@ public class ActivationLayer: Layer {
 
         case .relu:
             output = Matrix(as: input, data: input.storage.map { max(0, $0) })
+
+        case .softmax:
+            let expInput = exp(input - max(input))
+            output = expInput / (expInput.storage.reduce(0.0, +))
         }
         self.output = output
         return output
@@ -35,14 +40,18 @@ public class ActivationLayer: Layer {
         var input = input
         switch activation {
         case .sigmoid:
-            input = Matrix.elementwiseMul(
-                m1: forward(input),
-                m2:  (Matrix(as: input, repeating: 1) - forward(input))
-            )
-            return Matrix.elementwiseMul(m1: localGradient, m2: input)
+            input = elementwiseMul(forward(input), (Matrix(as: input, repeating: 1) - forward(input)))
+            return elementwiseMul(localGradient, input)
         case .relu:
             input = Matrix(as: input, data: input.storage.map { $0 > 0 ? 1.0 : 0.0 })
-            return Matrix.elementwiseMul(m1: localGradient, m2: input)
+            return elementwiseMul(
+                localGradient,
+                input
+            )
+
+        case .softmax:
+            let dSoftmax = Matrix.diagonal(from: output) - matmul(output.transposed(), output)
+            return matmul(localGradient, dSoftmax)
         }
 
     }

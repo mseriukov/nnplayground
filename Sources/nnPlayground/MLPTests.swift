@@ -12,7 +12,7 @@ class MLPTests {
         LinearLayer(inputSize: 500, outputSize: 32),
         ActivationLayer(.sigmoid),
         LinearLayer(inputSize: 32, outputSize: 10),
-        ActivationLayer(.sigmoid),
+        ActivationLayer(.softmax),
     ]
 
     func run(url: URL, testURL: URL) throws {
