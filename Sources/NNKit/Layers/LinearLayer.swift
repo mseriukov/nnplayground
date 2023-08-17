@@ -1,5 +1,6 @@
 import AlgebraKit
 import Accelerate
+import Foundation
 
 public class LinearLayer: Layer {
     public let inputSize: Int
@@ -35,9 +36,16 @@ public class LinearLayer: Layer {
     ) {
         self.inputSize = inputSize
         self.outputSize = outputSize
-
-        self.weight = weight ?? Matrix.random(rows: inputSize, cols: outputSize)
-        self.bias = bias ?? Matrix.random(rows: 1, cols: outputSize)
+        self.weight = weight ?? Matrix.random(
+            rows: inputSize,
+            cols: outputSize,
+            randomizer: { Float.random(in: -0.1...0.1) }
+        )
+        self.bias = bias ?? Matrix.random(
+            rows: 1,
+            cols: outputSize,
+            randomizer: { Float.random(in: -0.1...0.1) }
+        )
 
         weighedInput = Matrix(rows: 1, cols: outputSize)
 
