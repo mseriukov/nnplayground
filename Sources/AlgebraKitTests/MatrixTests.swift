@@ -32,7 +32,7 @@ final class MatrixTests: XCTestCase {
             4.0, 5.0, 6.0
         ])
 
-        let m3 = Matrix.matmul(m1: m1.transposed(), m2: m2)
+        let m3 = matmul(m1.transposed(), m2)
 
         XCTAssertEqual(m3.storage, [
             4.0,  5.0,  6.0,
