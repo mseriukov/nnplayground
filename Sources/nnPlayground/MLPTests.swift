@@ -12,9 +12,9 @@ class MLPTests {
 
     lazy var network: [any Layer] = {[
         linear1,
-        ActivationLayer(.sigmoid),
+        ActivationLayer(.relu),
         linear2,
-        ActivationLayer(.sigmoid),
+        ActivationLayer(.relu),
         linear3,
         ActivationLayer(.softmax),
     ]}()
@@ -24,9 +24,18 @@ class MLPTests {
     }()
 
     func initializeParameters() {
-        linear1.weight.randomize({ Float.random(in: -0.1...0.1) })
-        linear2.weight.randomize({ Float.random(in: -0.1...0.1) })
-        linear3.weight.randomize({ Float.random(in: -0.1...0.1) })
+        // TODO: Float.random doesn't have normal distribution. use LAPACK slarnv() instead.
+        linear1.weight.randomize({ Float.random(in: 0...1 * sqrt(2.0 / Float(linear1.weight.value.rows))) })//{ Float.random(in: -0.1...0.1) })
+        linear2.weight.randomize({ Float.random(in: 0...1 * sqrt(2.0 / Float(linear2.weight.value.rows))) })//{ Float.random(in: -0.1...0.1) })
+        linear3.weight.randomize({ Float.random(in: 0...1 * sqrt(2.0 / Float(linear3.weight.value.rows))) })//{ Float.random(in: -0.1...0.1) })
+    }
+
+    // FYI: eta is just a typeable version of η.
+    func updateParameters(_ parameters: [Parameter], eta: Float) {
+        for parameter in parameters {
+            parameter.value -= parameter.grad * eta
+            parameter.resetGrad()
+        }
     }
 
     func run(url: URL, testURL: URL) throws {
@@ -43,7 +52,6 @@ class MLPTests {
                 // Discard labels.
                 _ =  try reader.readLine(maxLength: 16536)
 
-                let learningRate: Float = 0.1
                 var shouldStop = false
                 while !shouldStop {
                     try autoreleasepool {
@@ -58,7 +66,7 @@ class MLPTests {
                         matches += fwhOut == fwhExp ? 1 : 0
                         total += 1
                         backward(errorLocalGrad)
-                        updateParameters(parameters, eta: learningRate)
+                        updateParameters(parameters, eta: 0.001)
                     }
                 }
             }
@@ -94,14 +102,6 @@ class MLPTests {
     func processMinibatch(_ minibatch: [(Matrix, Matrix)]) {
         for (input, expected) in minibatch {
             
-        }
-    }
-
-    // FYI: eta is just a typeable version of η.
-    func updateParameters(_ parameters: [Parameter], eta: Float) {
-        for parameter in parameters {
-            parameter.value -= parameter.grad * eta
-            parameter.resetGrad()
         }
     }
 
