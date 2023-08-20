@@ -8,13 +8,15 @@ public class LinearLayer: Layer {
 
     // [rows       x columns   ]
     // [inputSize  x outputSize]
-    private(set) public var weight: Matrix
-    private(set) public var wgrad: Matrix = Matrix(rows: 1, cols: 1)
+    private(set) public lazy var weight: Parameter = {
+        .init(rows: inputSize, cols: outputSize)
+    }()
 
     // [rows x columns   ]
     // [1    x outputSize]
-    private(set) public var bias: Matrix
-    private(set) public var bgrad: Matrix = Matrix(rows: 1, cols: 1)
+    private(set) public lazy var bias: Parameter = {
+        .init(rows: 1, cols: outputSize)
+    }()
 
     // [rows x columns  ]
     // [1    x inputSize]
@@ -28,29 +30,33 @@ public class LinearLayer: Layer {
     // [1    x outputSize]
     private(set) public var weighedInput: Matrix
 
+    public var parameters: [Parameter] {
+        [weight, bias]
+    }
+
     public init(
         inputSize: Int,
-        outputSize: Int,
-        weight: Matrix? = nil,
-        bias: Matrix? = nil
+        outputSize: Int
     ) {
         self.inputSize = inputSize
         self.outputSize = outputSize
-        self.weight = weight ?? Matrix.random(
+
+        weighedInput = Matrix(rows: 1, cols: outputSize)
+        input = Matrix(rows: 1, cols: inputSize)
+        output = Matrix(rows: 1, cols: outputSize)
+
+        // Initialize parameters.
+        // TODO: Move it up the hierarchy.
+        self.weight.value = Matrix.random(
             rows: inputSize,
             cols: outputSize,
             randomizer: { Float.random(in: -0.1...0.1) }
         )
-        self.bias = bias ?? Matrix.random(
+        self.bias.value = Matrix.random(
             rows: 1,
             cols: outputSize,
             randomizer: { Float.random(in: -0.1...0.1) }
         )
-
-        weighedInput = Matrix(rows: 1, cols: outputSize)
-
-        input = Matrix(rows: 1, cols: inputSize)
-        output = Matrix(rows: 1, cols: outputSize)
 
         resetGrad()
     }
@@ -58,24 +64,25 @@ public class LinearLayer: Layer {
     public func forward(_ input: Matrix) -> Matrix {
         assert(input.cols == inputSize, "Input size \(input.cols) doesn't match expected \(inputSize).")
         self.input = input
-        return matmul(weight.transposed(), input.transposed()).transposed() + bias
+        return matmul(weight.value.transposed(), input.transposed()).transposed() + bias.value
     }
 
     public func backward(_ localGradient: Matrix) -> Matrix {
         assert(localGradient.cols == outputSize, "Loss local gradint size \(localGradient.cols) doesn't match expected \(outputSize).")
-        wgrad = matmul(localGradient.transposed(), input).transposed()
-        bgrad = localGradient
-        return (weight * localGradient.transposed()).transposed()
+        weight.grad = matmul(localGradient.transposed(), input).transposed()
+        bias.grad = localGradient
+        return (weight.value * localGradient.transposed()).transposed()
     }
 
     public func updateParameters(eta: Float) {
-        weight = weight - wgrad * eta
-        bias = bias - bgrad * eta
+        // TODO: Move it away from layer to an optimizer.
+        weight.value = weight.value - weight.grad * eta
+        bias.value = bias.value - bias.grad * eta
         resetGrad()
     }
 
     private func resetGrad() {
-        wgrad = Matrix(as: weight)
-        bgrad = Matrix(as: bias)
+        weight.grad = Matrix(as: weight.value)
+        bias.grad = Matrix(as: bias.value)
     }
 }

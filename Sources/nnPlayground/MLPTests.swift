@@ -75,6 +75,12 @@ class MLPTests {
         print("accuracy: \(Float(matches) / Float(total))")
     }
 
+    func processMinibatch(_ minibatch: [(Matrix, Matrix)]) {
+        for (input, expected) in minibatch {
+            
+        }
+    }
+
     func forward(_ input: Matrix) -> Matrix {
         var input: Matrix = input
         for l in network {

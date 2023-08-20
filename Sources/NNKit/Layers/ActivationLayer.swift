@@ -13,6 +13,10 @@ public class ActivationLayer: Layer {
     private(set) public var input: Matrix = .zero
     private(set) public var output: Matrix = .zero
 
+    public var parameters: [Parameter] {
+        []
+    }
+
     public init(_ activation: Activation) {
         self.activation = activation
     }
