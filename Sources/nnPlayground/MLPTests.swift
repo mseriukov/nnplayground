@@ -6,16 +6,28 @@ import NNKit
 // MNIST dataset is from https://www.kaggle.com/datasets/oddrationale/mnist-in-csv
 
 class MLPTests {
-    let network: [any Layer] = [
-        LinearLayer(inputSize: 784, outputSize: 500),
+    var linear1 = LinearLayer(inputSize: 784, outputSize: 500)
+    var linear2 = LinearLayer(inputSize: 500, outputSize: 32)
+    var linear3 = LinearLayer(inputSize: 32, outputSize: 10)
+
+    lazy var network: [any Layer] = {[
+        linear1,
         ActivationLayer(.sigmoid),
-        LinearLayer(inputSize: 500, outputSize: 32),
+        linear2,
         ActivationLayer(.sigmoid),
-        LinearLayer(inputSize: 32, outputSize: 10),
+        linear3,
         ActivationLayer(.softmax),
-    ]
+    ]}()
+
+    func initializeParameters() {
+        linear1.weight.randomize({ Float.random(in: -0.1...0.1) })
+        linear2.weight.randomize({ Float.random(in: -0.1...0.1) })
+        linear3.weight.randomize({ Float.random(in: -0.1...0.1) })
+    }
 
     func run(url: URL, testURL: URL) throws {
+        initializeParameters()
+
         for i in 0..<10 {
             var matches = 0
             var total = 0
@@ -103,17 +115,9 @@ class MLPTests {
             .trimmingCharacters(in: .whitespacesAndNewlines)
             .split(separator: ",")
             .compactMap { Float($0) }
-        var expected = oneHot(outputLen: 10, n: Int(nums.first!))
+        var expected = toOneHot(outputLen: 10, n: Int(nums.first!))
         var input = Matrix(rows: 1, cols: 784, data: Array(nums.dropFirst()))
-
-        let mean = input.storage.reduce(0.0, +) / Float(input.storage.count)
-
-        let diffsq = input.storage.map({ ($0 - mean) * ($0 - mean) })
-        let std_ = diffsq.reduce(0.0, +) / Float(input.storage.count)
-        let std = sqrt(std_)
-
-        input = Matrix(as: input, data: input.storage.map { ($0 - mean) / std })
-
+        input.normalize()
         return (
             input: input,
             expected: expected
@@ -122,15 +126,5 @@ class MLPTests {
 
     private func loss(output: Matrix, expected: Matrix) -> Matrix {
         output - expected
-    }
-
-    private func oneHot(outputLen: Int, n: Int) -> Matrix {
-        var expected = Matrix(rows: 1, cols: outputLen, repeating: 0)
-        expected[0, n] = 1.0
-        return expected
-    }
-
-    private func fromOneHot(_ m: Matrix) -> Int {
-        return m.storage.indices.max(by: { m.storage[$0] < m.storage[$1] })!
     }
 }

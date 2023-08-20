@@ -77,8 +77,22 @@ public struct Matrix {
 }
 
 extension Matrix {
+
+    public mutating func normalize() {
+        let mean = self.storage.reduce(0.0, +) / Float(self.storage.count)
+
+        let diffsq = self.storage.map({ ($0 - mean) * ($0 - mean) })
+        let std_ = diffsq.reduce(0.0, +) / Float(self.storage.count)
+        let std = sqrt(std_)
+        self.storage = self.storage.map { ($0 - mean) / std }
+    }
+
     public static func random(rows: Int, cols: Int, randomizer: () -> Float) -> Matrix {
         Matrix(rows: rows, cols: cols, data: (0..<(rows*cols)).map { _ in randomizer() })
+    }
+
+    public static func random(as m: Matrix, randomizer: () -> Float) -> Matrix {
+        Matrix(as: m, data: (0..<(m.rows*m.cols)).map { _ in randomizer() })
     }
 
     public func transposed() -> Matrix {
@@ -143,8 +157,6 @@ extension Matrix {
         assert(lhs.rows == rhs.rows && lhs.cols == rhs.cols)
         return Matrix(rows: rhs.rows, cols: rhs.cols, data: Array(vDSP.subtract(lhs.storage, rhs.storage)))
     }
-
-    
 }
 
 extension Matrix: CustomDebugStringConvertible {

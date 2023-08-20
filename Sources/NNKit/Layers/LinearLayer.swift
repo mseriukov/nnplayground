@@ -45,19 +45,6 @@ public class LinearLayer: Layer {
         input = Matrix(rows: 1, cols: inputSize)
         output = Matrix(rows: 1, cols: outputSize)
 
-        // Initialize parameters.
-        // TODO: Move it up the hierarchy.
-        self.weight.value = Matrix.random(
-            rows: inputSize,
-            cols: outputSize,
-            randomizer: { Float.random(in: -0.1...0.1) }
-        )
-        self.bias.value = Matrix.random(
-            rows: 1,
-            cols: outputSize,
-            randomizer: { Float.random(in: -0.1...0.1) }
-        )
-
         resetGrad()
     }
 

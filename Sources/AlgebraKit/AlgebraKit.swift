@@ -1,5 +1,15 @@
 import Accelerate
 
+public func toOneHot(outputLen: Int, n: Int) -> Matrix {
+    var expected = Matrix(rows: 1, cols: outputLen, repeating: 0)
+    expected[0, n] = 1.0
+    return expected
+}
+
+public func fromOneHot(_ m: Matrix) -> Int {
+    m.storage.indices.max(by: { m.storage[$0] < m.storage[$1] })!
+}
+
 public func exp(_ input: Matrix) -> Matrix {
     Matrix(as: input, data: input.storage.map { exp($0) })
 }

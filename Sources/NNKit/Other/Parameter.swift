@@ -8,4 +8,8 @@ public class Parameter {
         value = Matrix(rows: rows, cols: cols, repeating: 0)
         grad = Matrix(as: value, repeating: 0)
     }
+
+    public func randomize(_ randomizer: () -> Float) {
+        value = Matrix.random(as: value, randomizer: randomizer)
+    }
 }
