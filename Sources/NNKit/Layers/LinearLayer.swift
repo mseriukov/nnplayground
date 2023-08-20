@@ -1,6 +1,4 @@
 import AlgebraKit
-import Accelerate
-import Foundation
 
 public class LinearLayer: Layer {
     public let inputSize: Int
@@ -44,8 +42,6 @@ public class LinearLayer: Layer {
         weighedInput = Matrix(rows: 1, cols: outputSize)
         input = Matrix(rows: 1, cols: inputSize)
         output = Matrix(rows: 1, cols: outputSize)
-
-        resetGrad()
     }
 
     public func forward(_ input: Matrix) -> Matrix {
@@ -56,20 +52,8 @@ public class LinearLayer: Layer {
 
     public func backward(_ localGradient: Matrix) -> Matrix {
         assert(localGradient.cols == outputSize, "Loss local gradint size \(localGradient.cols) doesn't match expected \(outputSize).")
-        weight.grad = matmul(localGradient.transposed(), input).transposed()
-        bias.grad = localGradient
+        weight.grad += matmul(localGradient.transposed(), input).transposed()
+        bias.grad += localGradient
         return (weight.value * localGradient.transposed()).transposed()
-    }
-
-    public func updateParameters(eta: Float) {
-        // TODO: Move it away from layer to an optimizer.
-        weight.value = weight.value - weight.grad * eta
-        bias.value = bias.value - bias.grad * eta
-        resetGrad()
-    }
-
-    private func resetGrad() {
-        weight.grad = Matrix(as: weight.value)
-        bias.grad = Matrix(as: bias.value)
     }
 }

@@ -19,6 +19,10 @@ class MLPTests {
         ActivationLayer(.softmax),
     ]}()
 
+    lazy var parameters: [Parameter] = {
+        network.reduce([], { $0 + $1.parameters })
+    }()
+
     func initializeParameters() {
         linear1.weight.randomize({ Float.random(in: -0.1...0.1) })
         linear2.weight.randomize({ Float.random(in: -0.1...0.1) })
@@ -54,7 +58,7 @@ class MLPTests {
                         matches += fwhOut == fwhExp ? 1 : 0
                         total += 1
                         backward(errorLocalGrad)
-                        network.forEach { $0.updateParameters(eta: learningRate) }
+                        updateParameters(parameters, eta: learningRate)
                     }
                 }
             }
@@ -93,6 +97,14 @@ class MLPTests {
         }
     }
 
+    // FYI: eta is just a typeable version of η.
+    func updateParameters(_ parameters: [Parameter], eta: Float) {
+        for parameter in parameters {
+            parameter.value -= parameter.grad * eta
+            parameter.resetGrad()
+        }
+    }
+
     func forward(_ input: Matrix) -> Matrix {
         var input: Matrix = input
         for l in network {
@@ -115,7 +127,7 @@ class MLPTests {
             .trimmingCharacters(in: .whitespacesAndNewlines)
             .split(separator: ",")
             .compactMap { Float($0) }
-        var expected = toOneHot(outputLen: 10, n: Int(nums.first!))
+        let expected = toOneHot(outputLen: 10, n: Int(nums.first!))
         var input = Matrix(rows: 1, cols: 784, data: Array(nums.dropFirst()))
         input.normalize()
         return (

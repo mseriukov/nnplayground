@@ -137,6 +137,14 @@ extension Matrix {
         rhs + lhs
     }
 
+    public static func +=(lhs: inout Matrix, rhs: Matrix) {
+        lhs = lhs + rhs
+    }
+
+    public static func -=(lhs: inout Matrix, rhs: Matrix) {
+        lhs = lhs - rhs
+    }
+
     public static func -(lhs: Matrix, rhs: Float) -> Matrix {
         lhs + (-rhs)
     }

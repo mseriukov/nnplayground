@@ -12,4 +12,8 @@ public class Parameter {
     public func randomize(_ randomizer: () -> Float) {
         value = Matrix.random(as: value, randomizer: randomizer)
     }
+
+    public func resetGrad() {
+        grad = Matrix(as: value, repeating: 0)
+    }
 }

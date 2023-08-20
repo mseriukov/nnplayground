@@ -59,9 +59,4 @@ public class ActivationLayer: Layer {
         }
 
     }
-
-    // FYI: eta is just a typeable version of η.
-    public func updateParameters(eta: Float) {
-        // Static layer
-    }
 }
