@@ -42,62 +42,46 @@ class MLPTests {
         initializeParameters()
 
         for i in 0..<10 {
-            var matches = 0
-            var total = 0
             print("epoch: \(i)")
-            do {
-                let reader = FileReader(fileURL: url)
-                try reader.open()
-                defer { reader.close() }
-                // Discard labels.
-                _ =  try reader.readLine(maxLength: 16536)
-
-                var shouldStop = false
-                while !shouldStop {
-                    try autoreleasepool {
-                        guard let line = try reader.readLine(maxLength: 16536) else { shouldStop = true; return }
-                        let (input, expected) = parseStr(line)
-
-                        let output = forward(input)
-                        let errorLocalGrad = loss(output: output, expected: expected)
-
-                        let fwhOut = fromOneHot(output)
-                        let fwhExp = fromOneHot(expected)
-                        matches += fwhOut == fwhExp ? 1 : 0
-                        total += 1
-                        backward(errorLocalGrad)
-                        updateParameters(parameters, eta: 0.001)
-                    }
-                }
-            }
+            let (matches, total) = try process(input: url, onlyInference: false)
             print("accuracy: \(Float(matches) / Float(total))")
         }
         print("Verify on test set.")
+        let (matches, total) = try process(input: testURL, onlyInference: true)
+        print("accuracy: \(Float(matches) / Float(total))")
+    }
+
+    func process(input fileURL: URL, onlyInference: Bool) throws -> (Int, Int) {
         var matches = 0
         var total = 0
-        do {
-            let reader = FileReader(fileURL: testURL)
-            try reader.open()
-            defer { reader.close() }
-            // Discard labels.
-            _ =  try reader.readLine(maxLength: 16536)
+        let reader = FileReader(fileURL: fileURL)
+        try reader.open()
+        defer { reader.close() }
+        // Discard labels.
+        _ =  try reader.readLine(maxLength: 16536)
 
-            var shouldStop = false
-            while !shouldStop {
-                try autoreleasepool {
-                    guard let line = try reader.readLine(maxLength: 16536) else { shouldStop = true; return }
-                    let (input, expected) = parseStr(line)
+        var shouldStop = false
+        while !shouldStop {
+            try autoreleasepool {
+                guard let line = try reader.readLine(maxLength: 16536) else { shouldStop = true; return }
+                let (input, expected) = parseStr(line)
 
-                    let output = forward(input)
-                    let fwhOut = fromOneHot(output)
-                    let fwhExp = fromOneHot(expected)
-                    matches += fwhOut == fwhExp ? 1 : 0
-                    total += 1
+                let output = forward(input)
+                let errorLocalGrad = loss(output: output, expected: expected)
+
+                let fwhOut = fromOneHot(output)
+                let fwhExp = fromOneHot(expected)
+                matches += fwhOut == fwhExp ? 1 : 0
+                total += 1
+                if !onlyInference {
+                    backward(errorLocalGrad)
+                    updateParameters(parameters, eta: 0.001)
                 }
             }
         }
-        print("accuracy: \(Float(matches) / Float(total))")
+        return (total, matches)
     }
+
 
     func processMinibatch(_ minibatch: [(Matrix, Matrix)]) {
         for (input, expected) in minibatch {
