@@ -1,2 +1,2 @@
 # nnplayground
-A sandbox for various deep learning experiments.
+A sandbox for various deep-learning experiments.
