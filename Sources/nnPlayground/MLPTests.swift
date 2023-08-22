@@ -43,11 +43,11 @@ class MLPTests {
 
         for i in 0..<10 {
             print("epoch: \(i)")
-            let (matches, total) = try process(input: url, onlyInference: false)
+            let (total, matches) = try process(input: url, onlyInference: false)
             print("accuracy: \(Float(matches) / Float(total))")
         }
         print("Verify on test set.")
-        let (matches, total) = try process(input: testURL, onlyInference: true)
+        let (total, matches) = try process(input: testURL, onlyInference: true)
         print("accuracy: \(Float(matches) / Float(total))")
     }
 
