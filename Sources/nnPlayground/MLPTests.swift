@@ -82,13 +82,6 @@ class MLPTests {
         return (total, matches)
     }
 
-
-    func processMinibatch(_ minibatch: [(Matrix, Matrix)]) {
-        for (input, expected) in minibatch {
-            
-        }
-    }
-
     func forward(_ input: Matrix) -> Matrix {
         var input: Matrix = input
         for l in network {
