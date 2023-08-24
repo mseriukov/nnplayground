@@ -1,5 +1,13 @@
 import Foundation
+
 import Accelerate
+
+public enum RandomKind {
+    // Normal distribution in [0...1]
+    case normal
+
+    case kaiming(inputChannels: Int)
+}
 
 public struct Matrix {
     public private(set) var storage: [Float]
@@ -76,8 +84,45 @@ public struct Matrix {
     }
 }
 
+// MARK: - Random
 extension Matrix {
+    public static func random(as m: Matrix, kind: RandomKind, seed: Int?) -> Matrix {
+        random(rows: m.rows, cols: m.cols, kind: kind, seed: seed)
+    }
+    
+    public static func random(rows: Int, cols: Int, kind: RandomKind, seed: Int?) -> Matrix {
+        var _seed = __CLPK_integer(truncatingIfNeeded: arc4random())
+        if let seed {
+            _seed = __CLPK_integer(truncatingIfNeeded: seed)
+        }
+        var dist: __CLPK_integer = 3
+        var seed: __CLPK_integer = _seed
+        let resultSize = rows * cols
+        let result = UnsafeMutablePointer<__CLPK_real>.allocate(capacity: resultSize)
+        var n: __CLPK_integer = Int32(resultSize)
+        slarnv_(&dist, &seed, &n, result)
 
+        var resultArray = Array(UnsafeBufferPointer(start: result, count: resultSize))
+
+        switch kind {
+        case .normal:
+            break
+
+        case let .kaiming(inputChannels):
+            let variance = 2.0 / Float(inputChannels)
+            let scale = sqrt(variance)
+            resultArray = resultArray.map { $0 * scale }
+        }
+
+        return Matrix(
+            rows: rows,
+            cols: cols,
+            data: resultArray
+        )
+    }
+}
+
+extension Matrix {
     public mutating func normalize() {
         let mean = self.storage.reduce(0.0, +) / Float(self.storage.count)
 
@@ -85,14 +130,6 @@ extension Matrix {
         let std_ = diffsq.reduce(0.0, +) / Float(self.storage.count)
         let std = sqrt(std_)
         self.storage = self.storage.map { ($0 - mean) / std }
-    }
-
-    public static func random(rows: Int, cols: Int, randomizer: () -> Float) -> Matrix {
-        Matrix(rows: rows, cols: cols, data: (0..<(rows*cols)).map { _ in randomizer() })
-    }
-
-    public static func random(as m: Matrix, randomizer: () -> Float) -> Matrix {
-        Matrix(as: m, data: (0..<(m.rows*m.cols)).map { _ in randomizer() })
     }
 
     public func transposed() -> Matrix {

@@ -9,8 +9,8 @@ public class Parameter {
         grad = Matrix(as: value, repeating: 0)
     }
 
-    public func randomize(_ randomizer: () -> Float) {
-        value = Matrix.random(as: value, randomizer: randomizer)
+    public func randomize(_ kind: RandomKind, seed: Int? = nil) {
+        value = Matrix.random(as: value, kind: kind, seed: seed)
     }
 
     public func resetGrad() {

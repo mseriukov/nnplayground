@@ -6,6 +6,8 @@ import NNKit
 // MNIST dataset is from https://www.kaggle.com/datasets/oddrationale/mnist-in-csv
 
 class MLPTests {
+    let seed = 42
+
     var linear1 = LinearLayer(inputSize: 784, outputSize: 500)
     var linear2 = LinearLayer(inputSize: 500, outputSize: 32)
     var linear3 = LinearLayer(inputSize: 32, outputSize: 10)
@@ -24,10 +26,9 @@ class MLPTests {
     }()
 
     func initializeParameters() {
-        // TODO: Float.random doesn't have normal distribution. use LAPACK slarnv() instead.
-        linear1.weight.randomize({ Float.random(in: 0...1 * sqrt(2.0 / Float(linear1.weight.value.rows))) })//{ Float.random(in: -0.1...0.1) })
-        linear2.weight.randomize({ Float.random(in: 0...1 * sqrt(2.0 / Float(linear2.weight.value.rows))) })//{ Float.random(in: -0.1...0.1) })
-        linear3.weight.randomize({ Float.random(in: 0...1 * sqrt(2.0 / Float(linear3.weight.value.rows))) })//{ Float.random(in: -0.1...0.1) })
+        linear1.weight.randomize(.kaiming(inputChannels: linear1.weight.value.rows), seed: seed)
+        linear2.weight.randomize(.kaiming(inputChannels: linear2.weight.value.rows), seed: seed)
+        linear3.weight.randomize(.kaiming(inputChannels: linear3.weight.value.rows), seed: seed)
     }
 
     // FYI: eta is just a typeable version of η.
