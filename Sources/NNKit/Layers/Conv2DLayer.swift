@@ -1,5 +1,20 @@
 import AlgebraKit
 
+public struct FilterDescriptor {
+    public enum Padding {
+        /// No padding.
+        case valid
+        /// Padding to get output of the same size as input.
+        case same
+        /// Padding to let filter see every piece of input.
+        case full
+    }
+    let rows: Int
+    let cols: Int
+    let padding: Padding
+    let stride: Int
+}
+
 public class Filter {
     public var weight: Parameter
     public var bias: Parameter
@@ -14,11 +29,20 @@ public class Conv2DLayer: Layer {
     public var input: Matrix = .zero
     public var output: Matrix = .zero
     public var parameters: [Parameter] = []
+    public var filters: [Filter] = []
+    public let filterDescriptor: FilterDescriptor
 
-    init(input: Matrix, filterRows: Int, filterCols: Int, filterCount: Int) {
-        var filters: [Filter] = []
+    init(
+        input: Matrix,
+        filterDescriptor: FilterDescriptor,
+        filterCount: Int
+    ) {
+        self.filterDescriptor = filterDescriptor
         for _ in 0..<filterCount {
-            let filter = Filter(rows: filterRows, cols: filterCols)
+            let filter = Filter(
+                rows: filterDescriptor.rows,
+                cols: filterDescriptor.cols
+            )
             filters.append(filter)
             parameters.append(filter.weight)
             parameters.append(filter.bias)
