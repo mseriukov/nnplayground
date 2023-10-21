@@ -9,29 +9,7 @@ final class BackpropTests: XCTestCase {
     override func setUp(){
        super.setUp()
 
-       nn = [
-        LinearLayer(
-            inputSize: 2,
-            outputSize: 2,
-            weight: Matrix(rows: 2, cols: 2, data: [
-                0.11, 0.21,
-                0.12, 0.08
-            ]),
-            bias: Matrix(rows: 1, cols: 2, data: [
-                0.0, 0.0
-            ])
-        ),
-        LinearLayer(
-            inputSize: 2,
-            outputSize: 1,
-            weight: Matrix(rows: 2, cols: 1, data: [
-                0.14, 0.15,
-            ]),
-            bias: Matrix(rows: 1, cols: 1, data: [
-                0.0
-            ])
-        )
-       ]
+
     }
 
     func test_forward() throws {

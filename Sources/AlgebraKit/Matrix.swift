@@ -1,5 +1,4 @@
 import Foundation
-
 import Accelerate
 
 public enum RandomKind {
