@@ -95,10 +95,13 @@ extension Matrix {
             _seed = __CLPK_integer(truncatingIfNeeded: seed)
         }
         var dist: __CLPK_integer = 3
-        var seed: __CLPK_integer = _seed
+        var seed: [__CLPK_integer] = [_seed, _seed, _seed, _seed]
         let resultSize = rows * cols
-        let result = UnsafeMutablePointer<__CLPK_real>.allocate(capacity: resultSize)
         var n: __CLPK_integer = Int32(resultSize)
+
+        let result = UnsafeMutablePointer<__CLPK_real>.allocate(capacity: resultSize)
+        defer { result.deallocate() }
+
         slarnv_(&dist, &seed, &n, result)
 
         var resultArray = Array(UnsafeBufferPointer(start: result, count: resultSize))
