@@ -30,6 +30,9 @@ let package = Package(
         ),
         .target(
             name: "AlgebraKit",
+            dependencies: [
+                "cnnutils"
+            ],
             path: "Sources/AlgebraKit",
             swiftSettings: [.define("ACCELERATE_NEW_LAPACK"), .define("ACCELERATE_LAPACK_ILP64")]
         ),

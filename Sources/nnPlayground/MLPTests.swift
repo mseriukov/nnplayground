@@ -42,10 +42,13 @@ class MLPTests {
     func run(url: URL, testURL: URL) throws {
         initializeParameters()
 
+
         for i in 0..<10 {
+            let startTimestamp = Date.now.timeIntervalSince1970
             print("epoch: \(i)")
             let (total, matches) = try process(input: url, onlyInference: false)
-            print("accuracy: \(Float(matches) / Float(total))")
+            let duration = Date.now.timeIntervalSince1970 - startTimestamp
+            print("accuracy: \(Float(matches) / Float(total)) duration: \(duration)")
         }
         print("Verify on test set.")
         let (total, matches) = try process(input: testURL, onlyInference: true)
