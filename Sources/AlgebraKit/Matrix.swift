@@ -85,26 +85,18 @@ public struct Matrix {
 
 // MARK: - Random
 extension Matrix {
-    public static func random(as m: Matrix, kind: RandomKind, seed: Int?) -> Matrix {
+    public static func random(as m: Matrix, kind: RandomKind, seed: UInt32?) -> Matrix {
         random(rows: m.rows, cols: m.cols, kind: kind, seed: seed)
     }
     
-    public static func random(rows: Int, cols: Int, kind: RandomKind, seed: Int?) -> Matrix {
-        var _seed = __CLPK_integer(truncatingIfNeeded: arc4random())
-        if let seed {
-            _seed = __CLPK_integer(truncatingIfNeeded: seed)
-        }
-        var dist: __CLPK_integer = 3
-        var seed: [__CLPK_integer] = [_seed, _seed, _seed, _seed]
+    public static func random(rows: Int, cols: Int, kind: RandomKind, seed: UInt32?) -> Matrix {
+        Random.setSeed(seed ?? arc4random())
         let resultSize = rows * cols
-        var n: __CLPK_integer = Int32(resultSize)
+        var result: [Float] = Array(repeating: 0, count: resultSize)
 
-        let result = UnsafeMutablePointer<__CLPK_real>.allocate(capacity: resultSize)
-        defer { result.deallocate() }
-
-        slarnv_(&dist, &seed, &n, result)
-
-        var resultArray = Array(UnsafeBufferPointer(start: result, count: resultSize))
+        for i in 0..<resultSize {
+            result[i] = Random.normal(mean: 0, stdDev: 1)
+        }
 
         switch kind {
         case .normal:
@@ -113,13 +105,13 @@ extension Matrix {
         case let .kaiming(inputChannels):
             let variance = 2.0 / Float(inputChannels)
             let scale = sqrt(variance)
-            resultArray = resultArray.map { $0 * scale }
+            result = result.map { $0 * scale }
         }
 
         return Matrix(
             rows: rows,
             cols: cols,
-            data: resultArray
+            data: result
         )
     }
 }

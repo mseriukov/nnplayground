@@ -10,4 +10,9 @@ int naive_mmul(
     const int a_cols_b_rows
 );
 
+void random_set_seed(unsigned int seed);
+float random_uniform();
+float random_normal(float mean, float stdDev);
+
+
 #endif /* cnnutils_h */

@@ -9,7 +9,7 @@ public class Parameter {
         grad = Matrix(as: value, repeating: 0)
     }
 
-    public func randomize(_ kind: RandomKind, seed: Int? = nil) {
+    public func randomize(_ kind: RandomKind, seed: UInt32? = nil) {
         value = Matrix.random(as: value, kind: kind, seed: seed)
     }
 

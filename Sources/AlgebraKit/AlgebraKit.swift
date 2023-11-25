@@ -55,26 +55,26 @@ public func matmul(
 //                Int32(m2.cols)
 //            )
 
-//            vDSP_mmul(
-//                m1ptr.baseAddress!,
-//                1,
-//                m2ptr.baseAddress!,
-//                1,
-//                result,
-//                1,
-//                vDSP_Length(m1.rows),
-//                vDSP_Length(m2.cols),
-//                vDSP_Length(m1.cols)
-//            )
-
-            naive_mmul(
+            vDSP_mmul(
                 m1ptr.baseAddress!,
+                1,
                 m2ptr.baseAddress!,
+                1,
                 result,
-                Int32(m1.rows),
-                Int32(m2.cols),
-                Int32(m1.cols)
+                1,
+                vDSP_Length(m1.rows),
+                vDSP_Length(m2.cols),
+                vDSP_Length(m1.cols)
             )
+
+//            naive_mmul(
+//                m1ptr.baseAddress!,
+//                m2ptr.baseAddress!,
+//                result,
+//                Int32(m1.rows),
+//                Int32(m2.cols),
+//                Int32(m1.cols)
+//            )
 
         }
     }
