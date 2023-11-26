@@ -1,8 +1,4 @@
-#include <stdlib.h>
-#include <stdbool.h>
-#include <math.h>
 #include "cnnutils.h"
-
 
 /*
              |b00, b01, b02, b03|
@@ -33,35 +29,4 @@ int naive_mmul(
         }
     }
     return 0;
-}
-
-void random_set_seed(unsigned int seed) {
-    srand(seed);
-}
-
-// Uniform distribution in [0..1]
-float random_uniform() {
-    return (float)((double)rand() / (double)(RAND_MAX));
-}
-
-// https://en.wikipedia.org/wiki/Marsaglia_polar_method
-float random_normal(float mean, float stdDev) {
-    static float spare;
-    static bool hasSpare = false;
-
-    if (hasSpare) {
-        hasSpare = false;
-        return spare * stdDev + mean;
-    }
-
-    float u, v, s;
-    do {
-        u = random_uniform() * 2.0 - 1.0;
-        v = random_uniform() * 2.0 - 1.0;
-        s = u * u + v * v;
-    } while (s >= 1.0 || s == 0.0);
-    s = sqrt(-2.0 * log(s) / s);
-    spare = v * s;
-    hasSpare = true;
-    return mean + stdDev * u * s;
 }

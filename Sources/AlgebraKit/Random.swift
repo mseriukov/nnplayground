@@ -1,16 +1,21 @@
 import Foundation
 import cnnutils
 
-public enum Random {
-    static func setSeed(_ seed: UInt32) {
-        random_set_seed(seed)
+public class NormalRandomGenerator {
+    private var state: random_state_t
+    let mean: Float
+    let std: Float
+    private let lock = UnfairLock()
+
+    public init(mean: Float, std: Float, seed: UInt32) {
+        self.state = random_state_t(prev: seed)
+        self.mean = mean
+        self.std = std
     }
 
-    static func uniform() -> Float {
-        random_uniform()
-    }
-
-    static func normal(mean: Float, stdDev: Float) -> Float {
-        random_normal(mean, stdDev)
+    public func next() -> Float {
+        lock.locked {
+            random_normal(&state, mean, std)
+        }
     }
 }

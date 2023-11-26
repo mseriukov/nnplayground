@@ -90,12 +90,12 @@ extension Matrix {
     }
     
     public static func random(rows: Int, cols: Int, kind: RandomKind, seed: UInt32?) -> Matrix {
-        Random.setSeed(seed ?? arc4random())
         let resultSize = rows * cols
         var result: [Float] = Array(repeating: 0, count: resultSize)
+        let rng = NormalRandomGenerator(mean: 0, std: 1, seed: seed ?? 1)
 
         for i in 0..<resultSize {
-            result[i] = Random.normal(mean: 0, stdDev: 1)
+            result[i] = rng.next()
         }
 
         switch kind {

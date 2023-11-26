@@ -6,7 +6,7 @@ import NNKit
 // MNIST dataset is from https://www.kaggle.com/datasets/oddrationale/mnist-in-csv
 
 class MLPTests {
-    let seed = 42
+    let seed: UInt32 = 42
 
     var linear1 = LinearLayer(inputSize: 784, outputSize: 500)
     var linear2 = LinearLayer(inputSize: 500, outputSize: 32)
