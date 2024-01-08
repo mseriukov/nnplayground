@@ -1,4 +1,5 @@
 import Foundation
+import AppKit
 import cnnutils
 import AlgebraKit
 import NNKit
@@ -39,11 +40,18 @@ class MLPTests {
         }
     }
 
-    func run(url: URL, testURL: URL) throws {
+    var imageClosure: ((NSImage?) -> Void)?
+
+    func run(url: URL, testURL: URL, imageClosure: ((NSImage?) -> Void)?) throws {
+        self.imageClosure = imageClosure
         initializeParameters()
 
-
         for i in 0..<10 {
+            //let matrix = Matrix.identity(size: 200)
+            let image = ImageBuilder.buildImage(from: linear1.weight.value)
+            let surl = url.deletingLastPathComponent().appendingPathComponent("test\(i)", conformingTo: .png)
+            ImageBuilder.saveImage(image!, atUrl: surl)
+            imageClosure?(image)
             let startTimestamp = Date.now.timeIntervalSince1970
             print("epoch: \(i)")
             let (total, matches) = try process(input: url, onlyInference: false)

@@ -1,16 +1,5 @@
-import SwiftUI
-
-//let app = NSApplication.shared
-//let delegate = AppDelegate()
-//app.delegate = delegate
-//app.run()
-
-@available(macOS 10.15, *)
-struct HelloView: View {
-    var body: some View {
-        Text("Hello world!")
-    }
-}
+import AppKit
+import SnapKit
 
 @available(macOS 10.15, *)
 class WindowDelegate: NSObject, NSWindowDelegate {
@@ -20,11 +9,23 @@ class WindowDelegate: NSObject, NSWindowDelegate {
     }
 }
 
-
 @available(macOS 10.15, *)
 class AppDelegate: NSObject, NSApplicationDelegate {
     let window = NSWindow()
     let windowDelegate = WindowDelegate()
+    let url: URL
+    let testURL: URL
+
+    private weak var imageView: DumbImageView? {
+        didSet {
+
+        }
+    }
+
+    init(url: URL, testURL: URL){
+        self.url = url
+        self.testURL = testURL
+    }
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         let appMenu = NSMenuItem()
@@ -38,16 +39,29 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         window.setContentSize(size)
         window.styleMask = [.closable, .miniaturizable, .resizable, .titled]
         window.delegate = windowDelegate
-        window.title = "My Swift Script"
+        window.title = "NNPlayground"
 
-        let view = NSHostingView(rootView: HelloView())
-        view.frame = CGRect(origin: .zero, size: size)
-        view.autoresizingMask = [.height, .width]
-        window.contentView!.addSubview(view)
+        let imageView = DumbImageView()
+        window.contentView!.addSubview(imageView)
+        imageView.snp.makeConstraints { $0.edges.equalToSuperview() }
+        self.imageView = imageView
+
         window.center()
         window.makeKeyAndOrderFront(window)
 
         NSApp.setActivationPolicy(.regular)
         NSApp.activate(ignoringOtherApps: true)
+
+        DispatchQueue.global().async {
+            do {
+                try MLPTests().run(url: self.url, testURL: self.testURL) { image in
+                    DispatchQueue.main.async {
+                        guard let image else { return }
+                        self.imageView?.image = image
+                        self.window.setContentSize(CGSize(width: image.size.width, height: image.size.height))
+                    }
+                }
+            } catch {}
+        }
     }
 }
