@@ -32,15 +32,14 @@ final class ImageBuilder {
             for col in 0..<matrix.cols {
                 //                AABBGGRR
                 var t: UInt32 = 0xff000000
-                let val = (matrix[row, col] + offset) / length * 255.0
-
-                t |= UInt32(max(0, min(val, 255.0))) << 0
-                t |= UInt32(max(0, min(val, 255.0))) << 8
-                t |= UInt32(max(0, min(val, 255.0))) << 16
+                let val = UInt8((matrix[row, col] + offset) / length * 255.0)
+                let color = Viridis.color(val)
+                t |= UInt32(max(0, min(color.r, 255))) << 0
+                t |= UInt32(max(0, min(color.g, 255))) << 8
+                t |= UInt32(max(0, min(color.b, 255))) << 16
                 withUnsafePointer(to: t) { ptr in
                     (data + row * matrix.cols * 4 + col * 4).copyMemory(from: ptr, byteCount: 4)
                 }
-
             }
         }
         let cgImage = context?.makeImage()
