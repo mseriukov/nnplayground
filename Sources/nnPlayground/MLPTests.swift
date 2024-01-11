@@ -50,7 +50,7 @@ class MLPTests {
             //let matrix = Matrix.identity(size: 200)
             let image = ImageBuilder.buildImage(from: linear1.weight.value)
             let surl = url.deletingLastPathComponent().appendingPathComponent("test\(i)", conformingTo: .png)
-            ImageBuilder.saveImage(image!, atUrl: surl)
+            try? image?.save(to: surl)
             imageClosure?(image)
             let startTimestamp = Date.now.timeIntervalSince1970
             print("epoch: \(i)")

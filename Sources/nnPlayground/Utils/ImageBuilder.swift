@@ -6,7 +6,7 @@ import UniformTypeIdentifiers
 
 final class ImageBuilder {
 
-    static func buildImage(from matrix: Matrix, saveTo url: URL? = nil) -> NSImage? {
+    static func buildImage(from matrix: Matrix) -> NSImage? {
         guard let colorSpace = CGColorSpace(name: CGColorSpace.sRGB) else { return nil }
         let width = matrix.cols
         let height = matrix.rows
@@ -43,39 +43,9 @@ final class ImageBuilder {
             }
         }
         let cgImage = context?.makeImage()
-        if 
-            let url,
-            let cgImage,
-            let dest = CGImageDestinationCreateWithURL(
-                url as CFURL,
-                UTType.png.identifier as CFString,
-                1,
-                nil
-            )
-        {
-            CGImageDestinationAddImage(dest, cgImage, nil)
-            CGImageDestinationFinalize(dest)
-        }
         let result = cgImage.map {
             NSImage(cgImage: $0, size: NSSize(width: width, height: height))
         }
         return result
-    }
-
-    static func saveImage(_ image: NSImage, atUrl url: URL) {
-        guard
-            let cgImage = image.cgImage(forProposedRect: nil, context: nil, hints: nil)
-            else { return } // TODO: handle error
-        let newRep = NSBitmapImageRep(cgImage: cgImage)
-        newRep.size = image.size // if you want the same size
-        guard
-            let pngData = newRep.representation(using: .png, properties: [:])
-            else { return } // TODO: handle error
-        do {
-            try pngData.write(to: url)
-        }
-        catch {
-            print("error saving: \(error)")
-        }
     }
 }
