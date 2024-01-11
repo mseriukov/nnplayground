@@ -16,6 +16,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     let url: URL
     let testURL: URL
 
+    func setContentSize( _ size: CGSize) {
+        window.setContentSize(size)
+    }
+
     private weak var imageView: DumbImageView? {
         didSet {
 
@@ -35,9 +39,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         mainMenu.addItem(appMenu)
         NSApplication.shared.mainMenu = mainMenu
 
-        let size = CGSize(width: 480, height: 270)
-        window.setContentSize(size)
-        window.styleMask = [.closable, .miniaturizable, .resizable, .titled]
+        setContentSize(CGSize(width: 480, height: 270))
+        window.styleMask = [.closable, .miniaturizable, .titled]
         window.delegate = windowDelegate
         window.title = "NNPlayground"
 
@@ -58,7 +61,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                     DispatchQueue.main.async {
                         guard let image else { return }
                         self.imageView?.image = image
-                        self.window.setContentSize(CGSize(width: image.size.width, height: image.size.height))
+                        self.setContentSize(image.size)
                     }
                 }
             } catch {}
