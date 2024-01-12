@@ -17,6 +17,13 @@ class Monitor: NSObject, NSApplicationDelegate {
     private let windowDelegate = WindowDelegate()
     private weak var imageView: DumbImageView?
     private var onFinishLaunching: ((Monitor) -> Void)?
+    private var mainMenu: NSMenu?
+
+    var title: String = "" {
+        didSet {
+            updateTitle()
+        }
+    }
 
     public func run(_ onFinishLaunching: ((Monitor) -> Void)?) {
         self.onFinishLaunching = onFinishLaunching
@@ -34,18 +41,20 @@ class Monitor: NSObject, NSApplicationDelegate {
         imageView?.image = image
     }
 
-    func applicationDidFinishLaunching(_ notification: Notification) {
-        let appMenu = NSMenuItem()
-        appMenu.submenu = NSMenu()
-        appMenu.submenu?.addItem(NSMenuItem(title: "Quit", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q"))
-        let mainMenu = NSMenu(title: "My Swift Script")
-        mainMenu.addItem(appMenu)
-        NSApplication.shared.mainMenu = mainMenu
+    private func updateTitle() {
+        mainMenu?.title = title
+        window.title = title
+    }
 
-        setContentSize(CGSize(width: 480, height: 270))
+    func applicationDidFinishLaunching(_ notification: Notification) {
+        let mainMenu = buildMainMenu()
+        NSApplication.shared.mainMenu = mainMenu
+        self.mainMenu = mainMenu
+
+        setContentSize(CGSize(width: 200, height: 200))
+
         window.styleMask = [.closable, .miniaturizable, .titled]
         window.delegate = windowDelegate
-        window.title = "NNPlayground"
 
         let imageView = DumbImageView()
         window.contentView!.addSubview(imageView)
@@ -59,5 +68,14 @@ class Monitor: NSObject, NSApplicationDelegate {
         NSApp.activate(ignoringOtherApps: true)
 
         onFinishLaunching?(self)
+    }
+
+    private func buildMainMenu() -> NSMenu {
+        let appMenu = NSMenuItem()
+        appMenu.submenu = NSMenu()
+        appMenu.submenu?.addItem(NSMenuItem(title: "Quit", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q"))
+        let mainMenu = NSMenu(title: "")
+        mainMenu.addItem(appMenu)
+        return mainMenu
     }
 }

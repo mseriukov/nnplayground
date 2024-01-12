@@ -20,6 +20,7 @@ struct nnplayground: ParsableCommand {
 
     mutating func run() throws {
         guard let inputURL, let testURL else { return }
+        Monitor.shared.title = "NNPlayground"
         Monitor.shared.run { monitor in
             DispatchQueue.global(qos: .userInitiated).async {
                 do {
