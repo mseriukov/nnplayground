@@ -1,9 +1,6 @@
 import ArgumentParser
 import Foundation
 import AppKit
-import SwiftUI
-
-var _appDelegate: AppDelegate?
 
 @main
 struct nnplayground: ParsableCommand {
@@ -12,21 +9,28 @@ struct nnplayground: ParsableCommand {
         completion: .file(),
         transform: URL.init(fileURLWithPath:)
     )
-    var inputFile: URL? = nil
+    var inputURL: URL? = nil
 
     @Argument(
         help: "Input file path.",
         completion: .file(),
         transform: URL.init(fileURLWithPath:)
     )
-    var testFile: URL? = nil
+    var testURL: URL? = nil
 
     mutating func run() throws {
-        guard let url = inputFile, let testURL = testFile else { return }
-        let app = NSApplication.shared
-        let appDelegate = AppDelegate(url: url, testURL: testURL)
-        app.delegate = appDelegate
-        _appDelegate = appDelegate
-        app.run()
+        guard let inputURL, let testURL else { return }
+        Monitor.shared.run { monitor in
+            DispatchQueue.global(qos: .userInitiated).async {
+                do {
+                    try MLPTests().run(url: inputURL, testURL: testURL) { image in
+                        DispatchQueue.main.async {
+                            guard let image else { return }
+                            monitor.setImage(image)
+                        }
+                    }
+                } catch {}
+            }
+        }
     }
 }

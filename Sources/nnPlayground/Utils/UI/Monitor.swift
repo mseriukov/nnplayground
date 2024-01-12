@@ -10,25 +10,28 @@ class WindowDelegate: NSObject, NSWindowDelegate {
 }
 
 @available(macOS 10.15, *)
-class AppDelegate: NSObject, NSApplicationDelegate {
-    let window = NSWindow()
-    let windowDelegate = WindowDelegate()
-    let url: URL
-    let testURL: URL
+class Monitor: NSObject, NSApplicationDelegate {
+    public static var shared = Monitor()
 
-    func setContentSize( _ size: CGSize) {
+    private let window = NSWindow()
+    private let windowDelegate = WindowDelegate()
+    private weak var imageView: DumbImageView?
+    private var onFinishLaunching: ((Monitor) -> Void)?
+
+    public func run(_ onFinishLaunching: ((Monitor) -> Void)?) {
+        self.onFinishLaunching = onFinishLaunching
+        let app = NSApplication.shared
+        app.delegate = Self.shared
+        app.run()
+    }
+
+    public func setContentSize( _ size: CGSize) {
         window.setContentSize(size)
     }
 
-    private weak var imageView: DumbImageView? {
-        didSet {
-
-        }
-    }
-
-    init(url: URL, testURL: URL){
-        self.url = url
-        self.testURL = testURL
+    public func setImage(_ image: NSImage) {
+        window.setContentSize(image.size)
+        imageView?.image = image
     }
 
     func applicationDidFinishLaunching(_ notification: Notification) {
@@ -55,16 +58,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         NSApp.setActivationPolicy(.regular)
         NSApp.activate(ignoringOtherApps: true)
 
-        DispatchQueue.global().async {
-            do {
-                try MLPTests().run(url: self.url, testURL: self.testURL) { image in
-                    DispatchQueue.main.async {
-                        guard let image else { return }
-                        self.imageView?.image = image
-                        self.setContentSize(image.size)
-                    }
-                }
-            } catch {}
-        }
+        onFinishLaunching?(self)
     }
 }
