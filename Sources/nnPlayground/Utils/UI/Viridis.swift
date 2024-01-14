@@ -1,9 +1,4 @@
-public protocol Palette256 {
-    // ABGR
-    static func color(_ idx: UInt8) -> UInt32
-}
-
-public enum Viridis: Palette256 {
+public enum Viridis {
     private static let colors: [UInt32] = [
         0xFF540144,
         0xFF560244,
