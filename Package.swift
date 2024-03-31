@@ -1,11 +1,11 @@
-// swift-tools-version: 5.8
+// swift-tools-version: 5.10
 // The swift-tools-version declares the minimum version of Swift required to build this package.
 
 import PackageDescription
 
 let package = Package(
     name: "nnplayground",
-    platforms: [.macOS(.v13)],
+    platforms: [.macOS(.v14)],
     dependencies: [
         .package(url: "https://github.com/apple/swift-argument-parser.git", from: "1.2.0"),
         .package(url: "https://github.com/SnapKit/SnapKit.git", .upToNextMajor(from: "5.0.1"))
@@ -22,8 +22,7 @@ let package = Package(
                 "AlgebraKit",
                 "NNKit"
             ],
-            path: "Sources/nnplayground",
-            swiftSettings: [.define("ACCELERATE_NEW_LAPACK"), .define("ACCELERATE_LAPACK_ILP64")]
+            path: "Sources/nnplayground"
         ),
         .target(
             name: "cnnutils",
@@ -36,7 +35,7 @@ let package = Package(
                 "cnnutils"
             ],
             path: "Sources/AlgebraKit",
-            swiftSettings: [.define("ACCELERATE_NEW_LAPACK"), .define("ACCELERATE_LAPACK_ILP64")]
+            cSettings: [.define("ACCELERATE_NEW_LAPACK")]
         ),
         .testTarget(
             name: "AlgebraKitTests",

@@ -38,34 +38,34 @@ public func matmul(
     defer { result.deallocate() }
     m1.storage.withUnsafeBufferPointer { m1ptr in
         m2.storage.withUnsafeBufferPointer { m2ptr in
-//            cblas_sgemm(
-//                CblasRowMajor,      // Row or column major
-//                CblasNoTrans,       // Should transpose m1
-//                CblasNoTrans,       // Should transpose m2
-//                Int32(m1.rows),
-//                Int32(m2.cols),
-//                Int32(m1.cols),
-//                1.0,                // Scaling factor
-//                m1ptr.baseAddress,
-//                Int32(m1.cols),
-//                m2ptr.baseAddress,
-//                Int32(m2.cols),
-//                0.0,                // Scaling factor.
-//                result,
-//                Int32(m2.cols)
-//            )
-
-            vDSP_mmul(
-                m1ptr.baseAddress!,
-                1,
-                m2ptr.baseAddress!,
-                1,
+            cblas_sgemm(
+                CblasRowMajor,      // Row or column major
+                CblasNoTrans,       // Should transpose m1
+                CblasNoTrans,       // Should transpose m2
+                Int32(m1.rows),
+                Int32(m2.cols),
+                Int32(m1.cols),
+                1.0,                // Scaling factor
+                m1ptr.baseAddress,
+                Int32(m1.cols),
+                m2ptr.baseAddress,
+                Int32(m2.cols),
+                0.0,                // Scaling factor.
                 result,
-                1,
-                vDSP_Length(m1.rows),
-                vDSP_Length(m2.cols),
-                vDSP_Length(m1.cols)
+                Int32(m2.cols)
             )
+
+//            vDSP_mmul(
+//                m1ptr.baseAddress!,
+//                1,
+//                m2ptr.baseAddress!,
+//                1,
+//                result,
+//                1,
+//                vDSP_Length(m1.rows),
+//                vDSP_Length(m2.cols),
+//                vDSP_Length(m1.cols)
+//            )
 
 //            naive_mmul(
 //                m1ptr.baseAddress!,
