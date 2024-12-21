@@ -39,7 +39,9 @@ final class ImageBuilder {
         }
         let cgImage = context?.makeImage()
         let result = cgImage.map {
-            NSImage(cgImage: $0, size: NSSize(width: width, height: height))
+            let nsImage = NSImage(size: NSSize(width: width, height: height))
+            nsImage.addRepresentation(NSBitmapImageRep(cgImage: $0))
+            return nsImage
         }
         return result
     }

@@ -39,8 +39,14 @@ final class Display: NSObject, NSWindowDelegate {
         onClose?()
     }
 
-    public func setImage(_ image: NSImage) {
-        window.setContentSize(image.size)
+    public func setImage(_ image: NSImage?) {
+        guard let image else {
+            imageView?.image = nil
+            return
+        }
+        let rep = image.representations[0]
+        let imageSize = NSSize(width: rep.pixelsWide, height: rep.pixelsHigh)
+        window.setContentSize(imageSize)
         imageView?.image = image
     }
 

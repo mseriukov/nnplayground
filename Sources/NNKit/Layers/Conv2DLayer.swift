@@ -1,20 +1,5 @@
 import AlgebraKit
 
-public struct FilterDescriptor {
-    public enum Padding {
-        /// No padding.
-        case valid
-        /// Padding to get output of the same size as input.
-        case same
-        /// Padding to let filter see every piece of input.
-        case full
-    }
-    let rows: Int
-    let cols: Int
-    let padding: Padding
-    let stride: Int
-}
-
 public class Filter {
     public var weight: Parameter
     public var bias: Parameter

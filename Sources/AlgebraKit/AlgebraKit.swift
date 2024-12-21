@@ -79,9 +79,6 @@ public func matmul(
         }
     }
     
-
-
-
     return Matrix(
         rows: m1.rows,
         cols: m2.cols,

@@ -117,6 +117,12 @@ extension Matrix {
 }
 
 extension Matrix {
+    public mutating func reshape(rows: Int, cols: Int) {
+        precondition(self.storage.count == rows * cols, "Size doesn't match")
+        self.rows = rows
+        self.cols = cols
+    }
+
     public mutating func normalize() {
         let mean = self.storage.reduce(0.0, +) / Float(self.storage.count)
 
@@ -124,6 +130,10 @@ extension Matrix {
         let std_ = diffsq.reduce(0.0, +) / Float(self.storage.count)
         let std = sqrt(std_)
         self.storage = self.storage.map { ($0 - mean) / std }
+    }
+
+    public mutating func invert() {
+        self.storage = self.storage.map { -$0 }
     }
 
     public func transposed() -> Matrix {
@@ -222,4 +232,52 @@ extension Matrix: CustomDebugStringConvertible {
         }
         return result
     }
+}
+
+extension Matrix: Equatable { }
+
+extension Matrix {
+    public static let laplacian5x5: Matrix = {
+        Matrix(rows: 5, cols: 5, data: [
+             0.0,  0.0, -1.0,  0.0,  0.0,
+             0.0, -1.0, -2.0, -1.0,  0.0,
+            -1.0, -2.0, 16.0, -2.0, -1.0,
+             0.0, -1.0, -2.0, -1.0,  0.0,
+             0.0,  0.0, -1.0,  0.0,  0.0,
+        ])
+    }()
+
+    public static let laplacian3x3: Matrix = {
+        Matrix(rows: 3, cols: 3, data: [
+             0.0,  1.0, 0.0,
+             1.0, -4.0, 1.0,
+             0.0,  1.0, 0.0,
+        ])
+    }()
+
+    public static let gaussian3x3: Matrix = {
+        Matrix(rows: 3, cols: 3, data: [
+             1.0,  2.0, 1.0,
+             2.0,  4.0, 2.0,
+             1.0,  2.0, 1.0,
+        ]) / 16.0
+    }()
+
+    public static let gaussian5x5: Matrix = {
+        Matrix(rows: 5, cols: 5, data: [
+             1.0,  4.0,  7.0,  4.0, 1.0,
+             4.0, 16.0, 26.0, 16.0, 4.0,
+             7.0, 26.0, 41.0, 26.0, 7.0,
+             4.0, 16.0, 26.0, 16.0, 4.0,
+             1.0,  4.0,  7.0,  4.0, 1.0,
+        ]) / 273.0
+    }()
+
+    public static let average3x3: Matrix = {
+        Matrix(rows: 3, cols: 3, data: [
+             1.0,  1.0, 1.0,
+             1.0,  1.0, 1.0,
+             1.0,  1.0, 1.0,
+        ]) / 9.0
+    }()    
 }

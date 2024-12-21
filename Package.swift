@@ -22,7 +22,21 @@ let package = Package(
                 "AlgebraKit",
                 "NNKit"
             ],
-            path: "Sources/nnplayground"
+            path: "Sources/nnplayground",
+            linkerSettings: [
+                .unsafeFlags([
+                    "-Xlinker", "-sectcreate",
+                    "-Xlinker", "__TEXT",
+                    "-Xlinker", "cats_gs",
+                    "-Xlinker", "Resources/cats_gs.png"
+                ]),
+                .unsafeFlags([
+                    "-Xlinker", "-sectcreate",
+                    "-Xlinker", "__TEXT",
+                    "-Xlinker", "cats",
+                    "-Xlinker", "Resources/cats.png"
+                ]),
+            ]
         ),
         .target(
             name: "cnnutils",
@@ -43,6 +57,18 @@ let package = Package(
                 "AlgebraKit",
             ],
             path: "Sources/AlgebraKitTests"
+        ),
+        .target(
+            name: "NDArray",
+            path: "Sources/NDArray",
+            cSettings: [.define("ACCELERATE_NEW_LAPACK")]
+        ),
+        .testTarget(
+            name: "NDArrayTests",
+            dependencies: [
+                "NDArray",
+            ],
+            path: "Sources/NDArrayTests"
         ),
         .target(
             name: "NNKit",
