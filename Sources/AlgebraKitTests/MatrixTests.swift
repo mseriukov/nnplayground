@@ -40,7 +40,34 @@ final class MatrixTests: XCTestCase {
             12.0, 15.0, 18.0
         ])
     }
+
+    func test_padding_1() throws {
+        var m1 = Matrix(rows: 1, cols: 1, data: [
+            1.0
+        ])
+
+        m1.pad(.init(top: 1, left: 1, bottom: 1, right: 1))
+
+        XCTAssertEqual(m1.storage, [
+            0.0,  0.0,  0.0,
+            0.0,  1.0,  0.0,
+            0.0,  0.0,  0.0
+        ])
+    }
+
+    func test_padding_2() throws {
+        var m1 = Matrix(rows: 1, cols: 1, data: [
+            1.0
+        ])
+
+        m1.pad(.init(top: 1, left: 2, bottom: 3, right: 4))
+
+        XCTAssertEqual(m1.storage, [
+            0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+            0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0,
+            0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+            0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+            0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+        ])
+    }
 }
-
-
-

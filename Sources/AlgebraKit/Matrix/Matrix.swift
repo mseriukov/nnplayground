@@ -115,6 +115,25 @@ extension Matrix {
 }
 
 extension Matrix {
+    public func padded(_ padding: Padding, value: Float = 0.0) -> Matrix {
+        let oldRows = rows
+        let oldCols = cols
+        let newRows = padding.top + oldRows + padding.bottom
+        let newCols = padding.left + oldCols + padding.right
+
+        var result = Array<Float>(repeating: value, count: newRows * newCols)
+        for r in 0..<oldRows {
+            for c in 0..<oldCols {
+                result[(r + padding.top) * newCols + (c + padding.left)] = storage[r * oldCols + c]
+            }
+        }
+        return Matrix(rows: newRows, cols: newCols, data: result)
+    }
+
+    public mutating func pad(_ padding: Padding, value: Float = 0.0) {
+        self = padded(padding, value: value)
+    }
+
     public mutating func reshape(rows: Int, cols: Int) {
         precondition(self.storage.count == rows * cols, "Size doesn't match")
         self.rows = rows
