@@ -8,6 +8,10 @@ public enum RandomKind {
     case kaiming(inputChannels: Int)
 }
 
+public protocol MatrixConvertible {
+    func asMatrix() -> Matrix
+}
+
 public struct Matrix {
     public private(set) var storage: [Float]
     public private(set) var rows: Int
@@ -90,13 +94,11 @@ extension Matrix {
     }
     
     public static func random(rows: Int, cols: Int, kind: RandomKind, seed: UInt32?) -> Matrix {
-        let resultSize = rows * cols
-        var result: [Float] = Array(repeating: 0, count: resultSize)
-        let rng = NormalRandomGenerator(mean: 0, std: 1, seed: seed ?? 1)
-
-        for i in 0..<resultSize {
-            result[i] = rng.next()
-        }
+        var result = Matrix(
+            rows: rows,
+            cols: cols,
+            data: Array(count: rows * cols, mean: 0, std: 1, seed: seed ?? 1)
+        )
 
         switch kind {
         case .normal:
@@ -105,14 +107,10 @@ extension Matrix {
         case let .kaiming(inputChannels):
             let variance = 2.0 / Float(inputChannels)
             let scale = sqrt(variance)
-            result = result.map { $0 * scale }
+            result.mapInPlace { $0 *= scale }
         }
 
-        return Matrix(
-            rows: rows,
-            cols: cols,
-            data: result
-        )
+        return result
     }
 }
 
@@ -124,16 +122,11 @@ extension Matrix {
     }
 
     public mutating func normalize() {
-        let mean = self.storage.reduce(0.0, +) / Float(self.storage.count)
-
-        let diffsq = self.storage.map({ ($0 - mean) * ($0 - mean) })
-        let std_ = diffsq.reduce(0.0, +) / Float(self.storage.count)
-        let std = sqrt(std_)
-        self.storage = self.storage.map { ($0 - mean) / std }
+        storage.normalize()
     }
 
     public mutating func invert() {
-        self.storage = self.storage.map { -$0 }
+        storage.invert()
     }
 
     public func transposed() -> Matrix {
@@ -161,11 +154,13 @@ extension Matrix {
         )
     }
 
-    public static func *(lhs: Matrix, rhs: Matrix) -> Matrix {
-        matmul(lhs, rhs)
+    public static func *(lhs: Matrix, rhs: MatrixConvertible) -> Matrix {
+        let rhs = rhs.asMatrix()
+        return matmul(lhs, rhs)
     }
 
-    public static func +(lhs: Matrix, rhs: Matrix) -> Matrix {
+    public static func +(lhs: Matrix, rhs: MatrixConvertible) -> Matrix {
+        let rhs = rhs.asMatrix()
         assert(lhs.rows == rhs.rows && lhs.cols == rhs.cols)
         return Matrix(rows: lhs.rows, cols: lhs.cols, data: Array(vDSP.add(lhs.storage, rhs.storage)))
     }
@@ -178,12 +173,14 @@ extension Matrix {
         rhs + lhs
     }
 
-    public static func +=(lhs: inout Matrix, rhs: Matrix) {
-        lhs = lhs + rhs
+    public static func +=(lhs: inout Matrix, rhs: MatrixConvertible) {
+        let rhs = rhs.asMatrix()
+        return lhs = lhs + rhs
     }
 
-    public static func -=(lhs: inout Matrix, rhs: Matrix) {
-        lhs = lhs - rhs
+    public static func -=(lhs: inout Matrix, rhs: MatrixConvertible) {
+        let rhs = rhs.asMatrix()
+        return lhs = lhs - rhs
     }
 
     public static func -(lhs: Matrix, rhs: Float) -> Matrix {
@@ -202,7 +199,8 @@ extension Matrix {
         lhs * (1.0 / rhs)
     }
 
-    public static func -(lhs: Matrix, rhs: Matrix) -> Matrix {
+    public static func -(lhs: Matrix, rhs: MatrixConvertible) -> Matrix {
+        let rhs = rhs.asMatrix()
         assert(lhs.rows == rhs.rows && lhs.cols == rhs.cols)
         return Matrix(rows: rhs.rows, cols: rhs.cols, data: Array(vDSP.subtract(lhs.storage, rhs.storage)))
     }
@@ -237,47 +235,11 @@ extension Matrix: CustomDebugStringConvertible {
 extension Matrix: Equatable { }
 
 extension Matrix {
-    public static let laplacian5x5: Matrix = {
-        Matrix(rows: 5, cols: 5, data: [
-             0.0,  0.0, -1.0,  0.0,  0.0,
-             0.0, -1.0, -2.0, -1.0,  0.0,
-            -1.0, -2.0, 16.0, -2.0, -1.0,
-             0.0, -1.0, -2.0, -1.0,  0.0,
-             0.0,  0.0, -1.0,  0.0,  0.0,
-        ])
-    }()
+    mutating func mapInPlace(_ transform: (inout Float) -> Void) {
+        storage.mapInPlace(transform)
+    }
+}
 
-    public static let laplacian3x3: Matrix = {
-        Matrix(rows: 3, cols: 3, data: [
-             0.0,  1.0, 0.0,
-             1.0, -4.0, 1.0,
-             0.0,  1.0, 0.0,
-        ])
-    }()
-
-    public static let gaussian3x3: Matrix = {
-        Matrix(rows: 3, cols: 3, data: [
-             1.0,  2.0, 1.0,
-             2.0,  4.0, 2.0,
-             1.0,  2.0, 1.0,
-        ]) / 16.0
-    }()
-
-    public static let gaussian5x5: Matrix = {
-        Matrix(rows: 5, cols: 5, data: [
-             1.0,  4.0,  7.0,  4.0, 1.0,
-             4.0, 16.0, 26.0, 16.0, 4.0,
-             7.0, 26.0, 41.0, 26.0, 7.0,
-             4.0, 16.0, 26.0, 16.0, 4.0,
-             1.0,  4.0,  7.0,  4.0, 1.0,
-        ]) / 273.0
-    }()
-
-    public static let average3x3: Matrix = {
-        Matrix(rows: 3, cols: 3, data: [
-             1.0,  1.0, 1.0,
-             1.0,  1.0, 1.0,
-             1.0,  1.0, 1.0,
-        ]) / 9.0
-    }()    
+extension Matrix: MatrixConvertible {
+    public func asMatrix() -> Matrix { self }
 }
