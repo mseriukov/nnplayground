@@ -20,7 +20,10 @@ struct nnplayground: ParsableCommand {
     var testURL: URL? = nil
 
     mutating func run() throws {
-        guard let inputURL, let testURL else { return }
+        guard
+            let inputURL,
+            let testURL
+        else { return }
         Monitor.shared.run { monitor in
             let display1 = Monitor.shared.addDisplay(title: "Test1", size: .zero)
             let display2 = Monitor.shared.addDisplay(title: "Test2", size: .zero)
@@ -44,19 +47,33 @@ struct nnplayground: ParsableCommand {
 //                    }
 //                } catch {}
 
-                guard let image = NSImage(data: MachOSectionReader.getEmbeddedData("cats_gs")) else { return }
+//                do {
+//                    try ConvTests().process(input: inputURL) { image in
+//                        DispatchQueue.main.async {
+//                            guard let image else { return }
+//                            display1.setImage(image)
+//                        }
+//                    }
+//                } catch {}
+
+                guard let image = NSImage(data: MachOSectionReader.getEmbeddedData("cats")) else { return }
                 DispatchQueue.main.async {
                     display1.setImage(image)
-                    var imageMatrix = image.asMatrix()[0]
-                    var filter = Matrix.laplacian5x5
+                    var imageMatricies = image.asMatrix()
+
+                    var filter = Matrix.gaussian5x5
                     let fsize = filter.size.cols
-                    imageMatrix = im2col(imageMatrix, fsize)
                     filter.reshape(size: Size(1, filter.size.elementCount))
-                    var r = filter * imageMatrix
-                    r.reshape(size: Size(512 - fsize + 1))
-                    r.normalize()
-                    r.mapInPlace { $0 = 1.0 / (1.0 + exp(-$0)) }
-                    let resultImage = ImageBuilder.buildImage(from: r.padded(25, value: 0), colorTransform: { Viridis.color($0) })
+                    var r = imageMatricies.map {
+                        filter * im2col($0, fsize)
+                    }
+                    r[0].reshape(size: Size(512 - fsize + 1))
+                    r[1].reshape(size: Size(512 - fsize + 1))
+                    r[2].reshape(size: Size(512 - fsize + 1))
+                    r[0].scaleToUnitInterval()
+                    r[1].scaleToUnitInterval()
+                    r[2].scaleToUnitInterval()
+                    let resultImage = ImageBuilder.buildImage(from: r)
                     display2.setImage(resultImage)
                 }
                 ProcessInfo.processInfo.endActivity(activity)

@@ -48,7 +48,7 @@ class MLPTests {
 
         for i in 0..<10 {
             //let matrix = Matrix.identity(size: 200)
-            let image = ImageBuilder.buildImage(from: linear1.weight.value)
+            let image = ImageBuilder.buildImage(from: [linear1.weight.value])
             let surl = url.deletingLastPathComponent().appendingPathComponent("test\(i)", conformingTo: .png)
             try? image?.save(to: surl)
             imageClosure?(image)

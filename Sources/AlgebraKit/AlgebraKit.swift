@@ -11,8 +11,8 @@ public func fromOneHot(_ m: Matrix) -> Int {
     m.storage.indices.max(by: { m.storage[$0] < m.storage[$1] })!
 }
 
-public func exp(_ input: Matrix) -> Matrix {
-    Matrix(as: input, data: input.storage.map { exp($0) })
+public func exp(_ input: MatrixConvertible) -> Matrix {
+    input.asMatrix().map { exp($0) }
 }
 
 public func max(_ input: Matrix) -> Float {

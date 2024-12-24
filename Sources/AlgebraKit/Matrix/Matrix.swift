@@ -16,17 +16,38 @@ public struct Matrix {
     public private(set) var storage: [Float]
     public private(set) var size: Size
 
-    public init(_ data: [Float]) {
-        self.size = Size(1, data.count)        
+    public init(size: Size, data: [Float]) {
+        assert(data.count == size.elementCount)
+        self.size = size
         self.storage = data
     }
 
-    public static var zero: Matrix {
-        Matrix(size: 0, data: [])
+    public init(size: Size, repeating constant: Float = 0.0) {
+        self.init(
+            size: size,
+            data: Array(repeating: constant, count: size.elementCount)
+        )
     }
 
-    private func indexIsValid(row: Int, col: Int) -> Bool {
-        row >= 0 && row < size.rows && col >= 0 && col < size.cols
+    public init(as other: Matrix, repeating constant: Float = 0.0) {
+        self.init(
+            size: other.size,
+            data: Array(repeating: constant, count: other.size.elementCount)
+        )
+    }
+
+    public init(as other: Matrix, data: [Float]) {
+        self.init(
+            size: other.size,
+            data: data
+        )
+    }
+
+    public init(_ data: [Float]) {
+        self.init(
+            size: Size(1, data.count),
+            data: data
+        )
     }
 
     public subscript(row: Int, col: Int) -> Float {
@@ -38,6 +59,16 @@ public struct Matrix {
             assert(indexIsValid(row: row, col: col), "Index out of range")
             storage[(row * size.cols) + col] = newValue
         }
+    }
+
+    private func indexIsValid(row: Int, col: Int) -> Bool {
+        row >= 0 && row < size.rows && col >= 0 && col < size.cols
+    }
+}
+
+extension Matrix {
+    public static var zero: Matrix {
+        Matrix(size: 0, data: [])
     }
 
     public static func identity(size: Int) -> Matrix {
@@ -55,28 +86,6 @@ public struct Matrix {
             m[i, i] = im[0, i]
         }
         return m
-    }
-
-    public init(size: Size, data: [Float]) {
-        assert(data.count == size.elementCount)
-        self.size = size
-        self.storage = data
-    }
-
-    public init(size: Size, repeating constant: Float = 0.0) {
-        self.size = size
-        self.storage = Array(repeating: constant, count: size.elementCount)
-    }
-
-    public init(as other: Matrix, repeating constant: Float = 0.0) {
-        self.size = other.size
-        self.storage = Array(repeating: constant, count: size.elementCount)
-    }
-
-    public init(as other: Matrix, data: [Float]) {
-        assert(data.count == other.size.elementCount)
-        self.size = other.size
-        self.storage = data
     }
 }
 
@@ -129,6 +138,10 @@ extension Matrix {
     public mutating func reshape(size: Size) {
         precondition(self.storage.count == size.elementCount, "Size doesn't match")
         self.size = size
+    }
+
+    public mutating func scaleToUnitInterval() {
+        storage.scaleToUnitInterval()
     }
 
     public mutating func normalize() {
@@ -246,6 +259,10 @@ extension Matrix: Equatable { }
 extension Matrix {
     public mutating func mapInPlace(_ transform: (inout Float) -> Void) {
         storage.mapInPlace(transform)
+    }
+
+    public func map(_ transform: (Float) -> Float) -> Matrix {
+        Matrix(size: size , data: storage.map(transform))
     }
 }
 
