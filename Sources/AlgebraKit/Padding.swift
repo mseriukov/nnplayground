@@ -11,3 +11,12 @@ public struct Padding {
         self.right = right
     }
 }
+
+extension Padding: ExpressibleByIntegerLiteral {
+    public init(integerLiteral value: Int) {
+        self.top = value
+        self.left = value
+        self.bottom = value
+        self.right = value
+    }
+}

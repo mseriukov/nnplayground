@@ -45,8 +45,9 @@ struct nnplayground: ParsableCommand {
                     filter.reshape(rows: 1, cols: fsize * fsize)
                     var r = filter * imageMatrix
                     r.reshape(rows: 512 - fsize + 1, cols: 512 - fsize + 1)
-                    r.normalize()                    
-                    let resultImage = ImageBuilder.buildImage(from: r.padded(.init(top: 25, left: 25, bottom: 25, right: 25), value: -1))
+                    r.normalize()
+                    r.mapInPlace { $0 = 1.0 / (1.0 + exp(-$0)) }
+                    let resultImage = ImageBuilder.buildImage(from: r.padded(25, value: 0), colorTransform: { Viridis.color($0) })
                     display2.setImage(resultImage)
                 }
             }

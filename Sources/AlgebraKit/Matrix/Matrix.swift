@@ -254,7 +254,7 @@ extension Matrix: CustomDebugStringConvertible {
 extension Matrix: Equatable { }
 
 extension Matrix {
-    mutating func mapInPlace(_ transform: (inout Float) -> Void) {
+    public mutating func mapInPlace(_ transform: (inout Float) -> Void) {
         storage.mapInPlace(transform)
     }
 }
