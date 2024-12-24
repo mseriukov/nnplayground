@@ -3,14 +3,14 @@ import XCTest
 
 final class Im2ColTests: XCTestCase {
     func test_basic() throws {
-        let m1 = Matrix(rows: 4, cols: 4, data: [
+        let m1 = Matrix(size: 4, data: [
              0.0,  1.0,  2.0,  3.0,
              4.0,  5.0,  6.0,  7.0,
              8.0,  9.0, 10.0, 11.0,
             12.0, 13.0, 14.0, 15.0,
         ])
 
-        XCTAssertEqual(im2col(m1, 3), Matrix(rows: 9, cols: 4, data: [
+        XCTAssertEqual(im2col(m1, 3), Matrix(size: Size(9, 4), data: [
              0.0,  1.0,  4.0,  5.0,
              1.0,  2.0,  5.0,  6.0,
              2.0,  3.0,  6.0,  7.0,
@@ -24,7 +24,7 @@ final class Im2ColTests: XCTestCase {
     }
 
     func test_dilated() throws {
-        let input = Matrix(rows: 8, cols: 8, data: [
+        let input = Matrix(size: 8, data: [
               1.0,   2.0,   3.0,   4.0,  5.0,   6.0,   7.0,   8.0,
               9.0,  10.0,  11.0,  12.0, 13.0,  14.0,  15.0,  16.0,
              17.0,  18.0,  19.0,  20.0, 21.0,  22.0,  23.0,  24.0,
@@ -35,7 +35,7 @@ final class Im2ColTests: XCTestCase {
              57.0,  58.0,  59.0,  60.0, 61.0,  62.0,  63.0,  64.0,
         ])
 
-        let result = Matrix(rows: 9, cols: 16, data: [
+        let result = Matrix(size: Size(9, 16), data: [
              1.0,  2.0,  3.0,  4.0,  9.0, 10.0, 11.0, 12.0, 17.0, 18.0, 19.0, 20.0, 25.0, 26.0, 27.0, 28.0,
              3.0,  4.0,  5.0,  6.0, 11.0, 12.0, 13.0, 14.0, 19.0, 20.0, 21.0, 22.0, 27.0, 28.0, 29.0, 30.0,
              5.0,  6.0,  7.0,  8.0, 13.0, 14.0, 15.0, 16.0, 21.0, 22.0, 23.0, 24.0, 29.0, 30.0, 31.0, 32.0,
@@ -49,10 +49,9 @@ final class Im2ColTests: XCTestCase {
 
         XCTAssertEqual(im2col(
             input: input,
-            filterSize: Size(rows: 3, cols: 3),
-            aStride: Stride(horizontal: 1, vertical: 1),
-            padding: Padding(top: 0, left: 0, bottom: 0, right: 0),
-            dilation: Dilation(horizontal: 2, vertical: 2)
+            filter: FilterDescriptor(size: 3, dilation: 2),
+            aStride: 1,
+            padding: 0
         ), result)
     }
 }

@@ -27,9 +27,9 @@ extension NSImage {
         let width = rep.pixelsWide
         let height = rep.pixelsHigh
 
-        let p = UnsafeMutableBufferPointer(start: rep.bitmapData, count: width*height)
+        let p = UnsafeMutableBufferPointer(start: rep.bitmapData, count: width * height)
         let arr = Array(p)
 
-        return [Matrix(rows: height, cols: width, data: arr.map { Float($0) / 255.0 })]
+        return [Matrix(size: Size(height, width), data: arr.map { Float($0) / 255.0 })]
     }
 }

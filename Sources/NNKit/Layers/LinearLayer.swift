@@ -7,13 +7,13 @@ public class LinearLayer: Layer {
     // [rows       x columns   ]
     // [inputSize  x outputSize]
     private(set) public lazy var weight: Parameter = {
-        .init(rows: inputSize, cols: outputSize)
+        .init(size: Size(inputSize, outputSize))
     }()
 
     // [rows x columns   ]
     // [1    x outputSize]
     private(set) public lazy var bias: Parameter = {
-        .init(rows: 1, cols: outputSize)
+        .init(size: Size(1, outputSize))
     }()
 
     // [rows x columns  ]
@@ -39,19 +39,19 @@ public class LinearLayer: Layer {
         self.inputSize = inputSize
         self.outputSize = outputSize
 
-        weighedInput = Matrix(rows: 1, cols: outputSize)
-        input = Matrix(rows: 1, cols: inputSize)
-        output = Matrix(rows: 1, cols: outputSize)
+        weighedInput = Matrix(size: Size(1, outputSize))
+        input = Matrix(size: Size(1, inputSize))
+        output = Matrix(size: Size(1, outputSize))
     }
 
     public func forward(_ input: Matrix) -> Matrix {
-        assert(input.cols == inputSize, "Input size \(input.cols) doesn't match expected \(inputSize).")
+        assert(input.size.cols == inputSize, "Input size \(input.size.cols) doesn't match expected \(inputSize).")
         self.input = input
         return matmul(weight.value.transposed(), input.transposed()).transposed() + bias.value
     }
 
     public func backward(_ localGradient: Matrix) -> Matrix {
-        assert(localGradient.cols == outputSize, "Loss local gradint size \(localGradient.cols) doesn't match expected \(outputSize).")
+        assert(localGradient.size.cols == outputSize, "Loss local gradint size \(localGradient.size.cols) doesn't match expected \(outputSize).")
         weight.grad += matmul(localGradient.transposed(), input).transposed()
         bias.grad += localGradient
         return (weight.value * localGradient.transposed()).transposed()

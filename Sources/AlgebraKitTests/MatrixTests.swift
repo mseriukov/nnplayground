@@ -3,12 +3,12 @@ import XCTest
 
 final class MatrixTests: XCTestCase {
     func test_matmul() throws {
-        let m1 = Matrix(rows: 3, cols: 4, data: [
+        let m1 = Matrix(size: Size(3, 4), data: [
             1.0, 2.0, 3.0, 4.0,
             5.0, 6.0, 7.0, 8.0,
             9.0, 8.0, 7.0, 6.0
         ])
-        let m2 = Matrix(rows: 4, cols: 3, data: [
+        let m2 = Matrix(size: Size(4, 3), data: [
             1.0, 1.0, 1.0,
             2.0, 2.0, 2.0,
             3.0, 3.0, 3.0,
@@ -25,10 +25,10 @@ final class MatrixTests: XCTestCase {
     }
 
     func test_matmul2() throws {
-        let m1 = Matrix(rows: 1, cols: 3, data: [
+        let m1 = Matrix(size: Size(1, 3), data: [
             1.0, 2.0, 3.0
         ])
-        let m2 = Matrix(rows: 1, cols: 3, data: [
+        let m2 = Matrix(size: Size(1, 3), data: [
             4.0, 5.0, 6.0
         ])
 
@@ -42,7 +42,7 @@ final class MatrixTests: XCTestCase {
     }
 
     func test_padding_1() throws {
-        var m1 = Matrix(rows: 1, cols: 1, data: [
+        var m1 = Matrix(size: 1, data: [
             1.0
         ])
 
@@ -56,7 +56,7 @@ final class MatrixTests: XCTestCase {
     }
 
     func test_padding_2() throws {
-        var m1 = Matrix(rows: 1, cols: 1, data: [
+        var m1 = Matrix(size: 1, data: [
             1.0
         ])
 

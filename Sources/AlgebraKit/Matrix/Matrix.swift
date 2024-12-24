@@ -14,36 +14,34 @@ public protocol MatrixConvertible {
 
 public struct Matrix {
     public private(set) var storage: [Float]
-    public private(set) var rows: Int
-    public private(set) var cols: Int
+    public private(set) var size: Size
 
     public init(_ data: [Float]) {
-        self.rows = 1
-        self.cols = data.count
+        self.size = Size(1, data.count)        
         self.storage = data
     }
 
     public static var zero: Matrix {
-        Matrix(rows: 0, cols: 0, data: [])
+        Matrix(size: 0, data: [])
     }
 
     private func indexIsValid(row: Int, col: Int) -> Bool {
-        row >= 0 && row < rows && col >= 0 && col < cols
+        row >= 0 && row < size.rows && col >= 0 && col < size.cols
     }
 
     public subscript(row: Int, col: Int) -> Float {
         get {
             assert(indexIsValid(row: row, col: col), "Index out of range")
-            return storage[(row * cols) + col]
+            return storage[(row * size.cols) + col]
         }
         set {
             assert(indexIsValid(row: row, col: col), "Index out of range")
-            storage[(row * cols) + col] = newValue
+            storage[(row * size.cols) + col] = newValue
         }
     }
 
     public static func identity(size: Int) -> Matrix {
-        var m = Matrix(rows: size, cols: size, repeating: 0.0)
+        var m = Matrix(size: Size(size), repeating: 0.0)
         for i in 0..<size {
             m[i, i] = 1.0
         }
@@ -51,38 +49,33 @@ public struct Matrix {
     }
 
     public static func diagonal(from im: Matrix) -> Matrix {
-        assert(im.rows == 1)
-        let size = im.cols
-        var m = Matrix(rows: size, cols: size, repeating: 0.0)
-        for i in 0..<size {
+        assert(im.size.rows == 1)
+        var m = Matrix(size: Size(im.size.cols), repeating: 0.0)
+        for i in 0..<im.size.cols {
             m[i, i] = im[0, i]
         }
         return m
     }
 
-    public init(rows: Int, cols: Int, data: [Float]) {
-        assert(data.count == rows * cols)
-        self.rows = rows
-        self.cols = cols
+    public init(size: Size, data: [Float]) {
+        assert(data.count == size.elementCount)
+        self.size = size
         self.storage = data
     }
 
-    public init(rows: Int, cols: Int, repeating constant: Float = 0.0) {
-        self.rows = rows
-        self.cols = cols
-        self.storage = Array(repeating: constant, count: rows * cols)
+    public init(size: Size, repeating constant: Float = 0.0) {
+        self.size = size
+        self.storage = Array(repeating: constant, count: size.elementCount)
     }
 
     public init(as other: Matrix, repeating constant: Float = 0.0) {
-        self.rows = other.rows
-        self.cols = other.cols
-        self.storage = Array(repeating: constant, count: rows * cols)
+        self.size = other.size
+        self.storage = Array(repeating: constant, count: size.elementCount)
     }
 
     public init(as other: Matrix, data: [Float]) {
-        assert(data.count == other.rows * other.cols)
-        self.rows = other.rows
-        self.cols = other.cols
+        assert(data.count == other.size.elementCount)
+        self.size = other.size
         self.storage = data
     }
 }
@@ -90,14 +83,13 @@ public struct Matrix {
 // MARK: - Random
 extension Matrix {
     public static func random(as m: Matrix, kind: RandomKind, seed: UInt32?) -> Matrix {
-        random(rows: m.rows, cols: m.cols, kind: kind, seed: seed)
+        random(size: m.size, kind: kind, seed: seed)
     }
     
-    public static func random(rows: Int, cols: Int, kind: RandomKind, seed: UInt32?) -> Matrix {
+    public static func random(size: Size, kind: RandomKind, seed: UInt32?) -> Matrix {
         var result = Matrix(
-            rows: rows,
-            cols: cols,
-            data: Array(count: rows * cols, mean: 0, std: 1, seed: seed ?? 1)
+            size: size,
+            data: Array(count: size.elementCount, mean: 0, std: 1, seed: seed ?? 1)
         )
 
         switch kind {
@@ -116,8 +108,8 @@ extension Matrix {
 
 extension Matrix {
     public func padded(_ padding: Padding, value: Float = 0.0) -> Matrix {
-        let oldRows = rows
-        let oldCols = cols
+        let oldRows = size.rows
+        let oldCols = size.cols
         let newRows = padding.top + oldRows + padding.bottom
         let newCols = padding.left + oldCols + padding.right
 
@@ -127,17 +119,16 @@ extension Matrix {
                 result[(r + padding.top) * newCols + (c + padding.left)] = storage[r * oldCols + c]
             }
         }
-        return Matrix(rows: newRows, cols: newCols, data: result)
+        return Matrix(size: Size(newRows, newCols), data: result)
     }
 
     public mutating func pad(_ padding: Padding, value: Float = 0.0) {
         self = padded(padding, value: value)
     }
 
-    public mutating func reshape(rows: Int, cols: Int) {
-        precondition(self.storage.count == rows * cols, "Size doesn't match")
-        self.rows = rows
-        self.cols = cols
+    public mutating func reshape(size: Size) {
+        precondition(self.storage.count == size.elementCount, "Size doesn't match")
+        self.size = size
     }
 
     public mutating func normalize() {
@@ -153,7 +144,7 @@ extension Matrix {
     }
 
     public static func transpose(_ m: Matrix) -> Matrix {
-        let resultSize = m.rows * m.cols
+        let resultSize = m.size.elementCount
         let result = UnsafeMutablePointer<Float>.allocate(capacity: resultSize)
         defer { result.deallocate() }
         m.storage.withUnsafeBufferPointer { mPtr in
@@ -162,13 +153,12 @@ extension Matrix {
                 1,
                 result,
                 1,
-                vDSP_Length(m.rows),
-                vDSP_Length(m.cols)
+                vDSP_Length(m.size.rows),
+                vDSP_Length(m.size.cols)
             )
         }
         return Matrix(
-            rows: m.cols,
-            cols: m.rows,
+            size: Size(m.size.cols, m.size.rows),
             data: Array(UnsafeBufferPointer(start: result, count: resultSize))
         )
     }
@@ -180,12 +170,12 @@ extension Matrix {
 
     public static func +(lhs: Matrix, rhs: MatrixConvertible) -> Matrix {
         let rhs = rhs.asMatrix()
-        assert(lhs.rows == rhs.rows && lhs.cols == rhs.cols)
-        return Matrix(rows: lhs.rows, cols: lhs.cols, data: Array(vDSP.add(lhs.storage, rhs.storage)))
+        assert(lhs.size.rows == rhs.size.rows && lhs.size.cols == rhs.size.cols)
+        return Matrix(size: lhs.size, data: Array(vDSP.add(lhs.storage, rhs.storage)))
     }
 
     public static func +(lhs: Matrix, rhs: Float) -> Matrix {
-        Matrix(rows: lhs.rows, cols: lhs.cols, data: Array(vDSP.add(rhs, lhs.storage)))
+        Matrix(size: lhs.size, data: Array(vDSP.add(rhs, lhs.storage)))
     }
 
     public static func +(lhs: Float, rhs: Matrix) -> Matrix {
@@ -207,7 +197,7 @@ extension Matrix {
     }
 
     public static func *(lhs: Float, rhs: Matrix) -> Matrix {
-        Matrix(rows: rhs.rows, cols: rhs.cols, data: Array(vDSP.multiply(lhs, rhs.storage)))
+        Matrix(size: rhs.size, data: Array(vDSP.multiply(lhs, rhs.storage)))
     }
 
     public static func *(lhs: Matrix, rhs: Float) -> Matrix {
@@ -220,8 +210,8 @@ extension Matrix {
 
     public static func -(lhs: Matrix, rhs: MatrixConvertible) -> Matrix {
         let rhs = rhs.asMatrix()
-        assert(lhs.rows == rhs.rows && lhs.cols == rhs.cols)
-        return Matrix(rows: rhs.rows, cols: rhs.cols, data: Array(vDSP.subtract(lhs.storage, rhs.storage)))
+        assert(lhs.size.rows == rhs.size.rows && lhs.size.cols == rhs.size.cols)
+        return Matrix(size: rhs.size, data: Array(vDSP.subtract(lhs.storage, rhs.storage)))
     }
 }
 
@@ -239,11 +229,11 @@ extension Matrix: CustomDebugStringConvertible {
 
     public var debugDescription: String {
         var result = ""
-        result += "[rows: \(rows), cols: \(cols)]\n"
-        for r in 0..<rows {
+        result += "[rows: \(size.rows), cols: \(size.cols)]\n"
+        for r in 0..<size.rows {
             var rowNums: [Float] = []
-            for c in 0..<cols {
-                rowNums.append(storage[r * cols + c])
+            for c in 0..<size.cols {
+                rowNums.append(storage[r * size.cols + c])
             }
             result += "[\(rowNums.map({ Matrix.valueFormatter.string(from: NSNumber(value: $0)) ?? "" }).joined(separator: ", "))]\n"
         }

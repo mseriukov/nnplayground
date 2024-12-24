@@ -13,7 +13,7 @@ final class BackpropTests: XCTestCase {
     }
 
     func test_forward() throws {
-        var input = Matrix(rows: 1, cols: 2, data: [
+        var input = Matrix(size: Size(1, 2), data: [
             2.0, 3.0
         ])
         for l in nn {

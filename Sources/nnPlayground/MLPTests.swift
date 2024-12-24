@@ -27,9 +27,9 @@ class MLPTests {
     }()
 
     func initializeParameters() {
-        linear1.weight.randomize(.kaiming(inputChannels: linear1.weight.value.rows), seed: seed)
-        linear2.weight.randomize(.kaiming(inputChannels: linear2.weight.value.rows), seed: seed)
-        linear3.weight.randomize(.kaiming(inputChannels: linear3.weight.value.rows), seed: seed)
+        linear1.weight.randomize(.kaiming(inputChannels: linear1.weight.value.size.rows), seed: seed)
+        linear2.weight.randomize(.kaiming(inputChannels: linear2.weight.value.size.rows), seed: seed)
+        linear3.weight.randomize(.kaiming(inputChannels: linear3.weight.value.size.rows), seed: seed)
     }
 
     // FYI: eta is just a typeable version of η.
@@ -117,7 +117,7 @@ class MLPTests {
             .split(separator: ",")
             .compactMap { Float($0) }
         let expected = toOneHot(outputLen: 10, n: Int(nums.first!))
-        var input = Matrix(rows: 1, cols: 784, data: Array(nums.dropFirst()))
+        var input = Matrix(size: Size(1, 784), data: Array(nums.dropFirst()))
         input.normalize()
         return (
             input: input,

@@ -8,8 +8,8 @@ final class ImageBuilder {
 
     static func buildImage(from matrix: Matrix, colorTransform: ((UInt8) -> UInt32)? = nil) -> NSImage? {
         guard let colorSpace = CGColorSpace(name: CGColorSpace.sRGB) else { return nil }
-        let width = matrix.cols
-        let height = matrix.rows
+        let width = matrix.size.cols
+        let height = matrix.size.rows
         let bitmapInfo = CGBitmapInfo(rawValue: CGImageAlphaInfo.premultipliedLast.rawValue)
         let context = CGContext(
             data: nil,
@@ -28,12 +28,12 @@ final class ImageBuilder {
         let offset = mind
         let length = maxd - mind
 
-        for row in 0..<matrix.rows {
-            for col in 0..<matrix.cols {
+        for row in 0..<matrix.size.rows {
+            for col in 0..<matrix.size.cols {
                 let val = UInt8((matrix[row, col] - offset) / length * 255.0)
                 let color = colorTransform?(val) ?? grayscale(val)
                 withUnsafePointer(to: color) { ptr in
-                    (data + row * matrix.cols * 4 + col * 4).copyMemory(from: ptr, byteCount: 4)
+                    (data + row * matrix.size.cols * 4 + col * 4).copyMemory(from: ptr, byteCount: 4)
                 }
             }
         }

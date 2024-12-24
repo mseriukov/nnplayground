@@ -1,4 +1,4 @@
-public struct Padding {
+public struct Padding: Hashable {
     public var top: Int
     public var left: Int
     public var bottom: Int
