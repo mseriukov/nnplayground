@@ -47,10 +47,6 @@ final class ImageBuilder {
     }
 
     static func grayscale(_ byte: UInt8) -> UInt32 {
-        var result: UInt32 = 0xFF000000
-        result |= UInt32(byte) << 0
-        result |= UInt32(byte) << 8
-        result |= UInt32(byte) << 16
-        return result
+        UInt32(littleEndianBytes: [0xFF, byte, byte, byte])
     }
 }
