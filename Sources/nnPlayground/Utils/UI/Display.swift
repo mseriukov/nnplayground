@@ -3,7 +3,7 @@ import SnapKit
 
 final class Display: NSObject, NSWindowDelegate {
     private let window: NSWindow
-    private weak var imageView: DumbImageView?
+    private weak var imageView: NSImageView?
 
     var onClose: (() -> Void)?
 
@@ -23,8 +23,11 @@ final class Display: NSObject, NSWindowDelegate {
         window = NSWindow()
         window.styleMask = [.closable, .miniaturizable, .titled]
 
-        let imageView = DumbImageView()
-        window.contentView!.addSubview(imageView)
+        let imageView = NSImageView()
+
+        let contentView = NSView()
+        window.contentView = contentView
+        contentView.addSubview(imageView)
         imageView.snp.makeConstraints { $0.edges.equalToSuperview() }
         self.imageView = imageView
 
@@ -46,6 +49,8 @@ final class Display: NSObject, NSWindowDelegate {
         }
         let rep = image.representations[0]
         let imageSize = NSSize(width: rep.pixelsWide, height: rep.pixelsHigh)
+        // Yep. Divine API...
+        image.size = imageSize
         window.setContentSize(imageSize)
         imageView?.image = image
     }

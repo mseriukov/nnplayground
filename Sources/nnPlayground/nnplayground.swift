@@ -46,7 +46,7 @@ struct nnplayground: ParsableCommand {
                     var r = filter * imageMatrix
                     r.reshape(rows: 512 - fsize + 1, cols: 512 - fsize + 1)
                     r.normalize()                    
-                    let resultImage = ImageBuilder.buildImage(from: r.padded(.init(top: 50, left: 25, bottom: 25, right: 25), value: -1))
+                    let resultImage = ImageBuilder.buildImage(from: r.padded(.init(top: 25, left: 25, bottom: 25, right: 25), value: -1))
                     display2.setImage(resultImage)
                 }
             }
