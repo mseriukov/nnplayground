@@ -72,7 +72,8 @@ struct nnplayground: ParsableCommand {
                     r[2].reshape(size: Size(512 - fsize + 1))
                     r[0].scaleToUnitInterval()
                     r[1].scaleToUnitInterval()
-                    r[2].scaleToUnitInterval()
+                    r[2].scaleToUnitInterval()                    
+
                     let resultImage = ImageBuilder.buildImage(from: r)
                     display2.setImage(resultImage)
                 }

@@ -29,6 +29,32 @@ public func elementwiseMul(
     return Matrix(as: m1, data: Array(result))
 }
 
+public func mathjoin(
+    _ matricies: Matrix...
+) -> Matrix {
+    var rows: Int!
+    for matrix in matricies {
+        guard let rows else {
+            rows = matrix.size.rows
+            continue
+        }
+        guard rows == matrix.size.rows else {
+            fatalError("Matricies height doesn't match")
+        }
+    }
+    var result = Matrix(size: Size(rows, matricies.reduce(0) { $0 + $1.size.cols } ))
+    for r in 0..<rows {
+        var offset = 0
+        for m in matricies {
+            for c in 0..<m.size.cols {
+                result[r,  offset + c] = m[r, c]
+            }
+            offset += m.size.cols
+        }
+    }
+    return result
+}
+
 public func matmul(
     _ m1: Matrix,
     _ m2: Matrix
