@@ -40,6 +40,10 @@ public struct NDArray<Element: BinaryFloatingPoint> {
         return true
     }
 
+    var isScalar: Bool {
+        return shape == [] || shape == [1]
+    }
+
     public func makeContiguous() -> Self {
         if isContiguous {
             return self  // Already contiguous
@@ -146,6 +150,13 @@ extension NDArray {
     }
 
     private func broadcastTo(shape: [Int]) -> Self? {
+        if isScalar {
+            var scalarView = self
+            scalarView.shape = shape
+            scalarView.strides = Array(repeating: 0, count: shape.count)
+            return scalarView
+        }
+
         guard let newShape = broadcastShapes(self.shape, shape) else {
             return nil
         }

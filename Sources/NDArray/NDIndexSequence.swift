@@ -7,6 +7,10 @@ public struct NDIndexSequence: Sequence, IteratorProtocol {
     }
 
     public mutating func next() -> [Int]? {
+        guard !shape.isEmpty else {
+            return nil
+        }
+        
         guard !indicies.isEmpty else {
             indicies = Array(repeating: 0, count: shape.count)
             return indicies
