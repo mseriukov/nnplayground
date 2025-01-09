@@ -149,7 +149,7 @@ extension NDArray {
         return resultShape
     }
 
-    private func broadcastTo(shape: [Int]) -> Self? {
+    func broadcastTo(_ shape: [Int]) -> Self? {
         if isScalar {
             var scalarView = self
             scalarView.shape = shape
@@ -199,7 +199,7 @@ extension NDArray {
     public mutating func addBroadcasted(_ other: Self) {
         var other = other
         if shape != other.shape {
-            guard let broadcastedOther = other.broadcastTo(shape: shape) else {
+            guard let broadcastedOther = other.broadcastTo(shape) else {
                 fatalError("Shapes cannot be broadcasted")
             }
             other = broadcastedOther
@@ -221,7 +221,7 @@ extension NDArray {
     public mutating func mulBroadcasted(_ other: Self) {
         var other = other
         if shape != other.shape {
-            guard let broadcastedOther = other.broadcastTo(shape: shape) else {
+            guard let broadcastedOther = other.broadcastTo(shape) else {
                 fatalError("Shapes cannot be broadcasted")
             }
             other = broadcastedOther
