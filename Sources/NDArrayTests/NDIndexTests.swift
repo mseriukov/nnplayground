@@ -1,10 +1,11 @@
-import XCTest
+import Testing
 @testable import NDArray
 
-final class NDIndexTests: XCTestCase {
-    func test_index() throws {
+@Suite("NDIndex tests")
+final class NDIndexTests {
+    @Test("Index")
+    func index() throws {
         let indexSeq = NDIndexSequence(shape: [3, 3, 3])
-
         let expected = [
             [0, 0, 0],
             [0, 0, 1],
@@ -36,7 +37,7 @@ final class NDIndexTests: XCTestCase {
         ]
 
         for (i, indicies) in indexSeq.enumerated() {            
-            XCTAssertEqual(indicies, expected[i])
+            #expect(indicies == expected[i])
         }
     }
 }
