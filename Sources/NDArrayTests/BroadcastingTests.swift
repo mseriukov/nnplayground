@@ -1,9 +1,9 @@
 import Testing
 @testable import NDArray
 
-@Suite("Broadcasting tests")
+@Suite
 struct BroadcastingTests {
-    @Test("Broadcast scalar")
+    @Test
     func broadcastScalar() throws {
         let storage = NDArrayStorage<Double>([42])
         let a = NDArray(storage: storage, shape: [])
@@ -15,7 +15,7 @@ struct BroadcastingTests {
         ])
     }
 
-    @Test("Broadcast rows")
+    @Test
     func broadcastRows() throws {
         let storage = NDArrayStorage<Double>([1, 2, 3])
         let a = NDArray(storage: storage, shape: [1, 3])
@@ -27,7 +27,7 @@ struct BroadcastingTests {
         ])
     }
 
-    @Test("Broadcast cols")
+    @Test
     func broadcastCols() throws {
         let storage = NDArrayStorage<Double>([
             1,

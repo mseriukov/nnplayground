@@ -125,11 +125,7 @@ public struct NDArray<Element: BinaryFloatingPoint> {
 
 extension NDArray {
     private static func defaultStrides(for shape: [Int]) -> [Int] {
-        var strides = [Int](repeating: 1, count: shape.count)
-        for i in (0..<(shape.count - 1)).reversed() {
-            strides[i] = strides[i + 1] * shape[i + 1]
-        }
-        return strides
+        DefaultStridesGenerator.defaultStrides(for: shape)
     }
 
     private func broadcastShapes(_ shape1: [Int], _ shape2: [Int]) -> [Int]? {

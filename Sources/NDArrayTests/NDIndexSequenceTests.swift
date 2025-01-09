@@ -1,9 +1,9 @@
 import Testing
 @testable import NDArray
 
-@Suite("NDIndex tests")
+@Suite
 struct NDIndexTests {
-    @Test("All indicies are covered")
+    @Test
     func allIndiciesAreCovered() throws {
         let indexSeq = NDIndexSequence(shape: [3, 3, 3])
         let expected = [
@@ -41,7 +41,7 @@ struct NDIndexTests {
         }
     }
 
-    @Test("Nil if shape is empty")
+    @Test
     func nilIfShapeIsEmpty() throws {
         var indexSeq = NDIndexSequence(shape: [])
         #expect(indexSeq.next() == nil)

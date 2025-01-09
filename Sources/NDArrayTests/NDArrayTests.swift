@@ -1,9 +1,9 @@
 import Testing
 @testable import NDArray
 
-@Suite("Operations tests")
+@Suite
 struct NDArrayTests {
-    @Test("Multiplication")
+    @Test
     func mul() throws {
         var a = NDArray(
             storage: NDArrayStorage([
@@ -27,7 +27,7 @@ struct NDArrayTests {
         ])
     }
 
-    @Test("Addition")
+    @Test
     func add() throws {
         var a = NDArray(
             storage: NDArrayStorage([
