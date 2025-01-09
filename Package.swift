@@ -7,8 +7,8 @@ let package = Package(
     name: "nnplayground",
     platforms: [.macOS(.v14)],
     dependencies: [
-        .package(url: "https://github.com/apple/swift-argument-parser.git", from: "1.3.1"),
-        .package(url: "https://github.com/SnapKit/SnapKit.git", .upToNextMajor(from: "5.0.1"))
+        .package(url: "https://github.com/apple/swift-argument-parser.git", from: "1.5.0"),
+        .package(url: "https://github.com/SnapKit/SnapKit.git", from: "5.7.1")
     ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
