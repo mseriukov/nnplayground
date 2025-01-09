@@ -1,4 +1,4 @@
-public struct Size: Hashable {
+public struct Size: Hashable, Sendable {
     public var rows: Int
     public var cols: Int
 

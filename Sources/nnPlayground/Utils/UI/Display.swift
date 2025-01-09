@@ -1,6 +1,7 @@
 import AppKit
 import SnapKit
 
+@MainActor
 final class Display: NSObject, NSWindowDelegate {
     private let window: NSWindow
     private weak var imageView: NSImageView?

@@ -1,4 +1,4 @@
-// swift-tools-version: 5.10
+// swift-tools-version: 6.0
 // The swift-tools-version declares the minimum version of Swift required to build this package.
 
 import PackageDescription
@@ -7,7 +7,6 @@ let package = Package(
     name: "nnplayground",
     platforms: [.macOS(.v14)],
     dependencies: [
-        .package(url: "https://github.com/swiftlang/swift-testing.git", from: "6.0.3"),
         .package(url: "https://github.com/apple/swift-argument-parser.git", from: "1.3.1"),
         .package(url: "https://github.com/SnapKit/SnapKit.git", .upToNextMajor(from: "5.0.1"))
     ],
@@ -67,8 +66,7 @@ let package = Package(
         .testTarget(
             name: "NDArrayTests",
             dependencies: [
-                "NDArray",
-                .product(name: "Testing", package: "swift-testing")
+                "NDArray"
             ],
             path: "Sources/NDArrayTests"
         ),

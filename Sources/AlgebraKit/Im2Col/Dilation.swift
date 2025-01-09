@@ -1,4 +1,4 @@
-public struct Dilation: Hashable {
+public struct Dilation: Hashable, Sendable {
     public var horizontal: Int
     public var vertical: Int
 

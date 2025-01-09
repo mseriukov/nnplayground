@@ -2,9 +2,9 @@ import Testing
 @testable import NDArray
 
 @Suite("NDIndex tests")
-final class NDIndexTests {
-    @Test("Index")
-    func index() throws {
+struct NDIndexTests {
+    @Test("All indicies are covered")
+    func allIndiciesAreCovered() throws {
         let indexSeq = NDIndexSequence(shape: [3, 3, 3])
         let expected = [
             [0, 0, 0],
@@ -39,5 +39,11 @@ final class NDIndexTests {
         for (i, indicies) in indexSeq.enumerated() {            
             #expect(indicies == expected[i])
         }
+    }
+
+    @Test("Nil if shape is empty")
+    func nilIfShapeIsEmpty() throws {
+        var indexSeq = NDIndexSequence(shape: [])
+        #expect(indexSeq.next() == nil)
     }
 }

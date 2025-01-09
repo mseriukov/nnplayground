@@ -1,6 +1,7 @@
 import AppKit
 import SnapKit
 
+@MainActor
 class Monitor: NSObject, NSApplicationDelegate {
     public static var shared = Monitor()
     public private(set) var displays: [Display] = []

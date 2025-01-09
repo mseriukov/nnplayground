@@ -12,7 +12,7 @@ public protocol MatrixConvertible {
     func asMatrix() -> Matrix
 }
 
-public struct Matrix {
+public struct Matrix: Sendable {
     public private(set) var storage: [Float]
     public private(set) var size: Size
 
@@ -229,7 +229,7 @@ extension Matrix {
 }
 
 extension Matrix: CustomDebugStringConvertible {
-    private static var valueFormatter: NumberFormatter = {
+    nonisolated(unsafe) private static var valueFormatter: NumberFormatter = {
         let formatter = NumberFormatter()
         formatter.numberStyle = .decimal
         formatter.decimalSeparator = "."

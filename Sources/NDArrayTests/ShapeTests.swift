@@ -2,7 +2,7 @@ import Testing
 @testable import NDArray
 
 @Suite("Shape tests")
-final class ShapeTests {
+struct ShapeTests {
     @Test("Shape")
     func shape() throws {
         let storage = NDArrayStorage(size: 1, initialValue: 0)
