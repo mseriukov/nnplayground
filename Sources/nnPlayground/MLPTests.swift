@@ -40,18 +40,16 @@ class MLPTests {
         }
     }
 
-    var imageClosure: ((NSImage?) -> Void)?
-
-    func run(url: URL, testURL: URL, imageClosure: ((NSImage?) -> Void)?) throws {
-        self.imageClosure = imageClosure
+    func run(url: URL, testURL: URL) throws {
         initializeParameters()
 
         for i in 0..<10 {
             //let matrix = Matrix.identity(size: 200)
-            let image = ImageBuilder.buildImage(from: [linear1.weight.value])
+            var value = linear1.weight.value
+            value.scaleToUnitInterval()
+            let image = ImageBuilder.buildImage(from: [value])
             let surl = url.deletingLastPathComponent().appendingPathComponent("test\(i)", conformingTo: .png)
             try? image?.save(to: surl)
-            imageClosure?(image)
             let startTimestamp = Date.now.timeIntervalSince1970
             print("epoch: \(i)")
             let (total, matches) = try process(input: url, onlyInference: false)

@@ -1,7 +1,7 @@
 import Foundation
 
 extension Array where Element: BinaryFloatingPoint {
-    mutating func scaleToUnitInterval() {
+    public mutating func scaleToUnitInterval() {
         guard let minVal = self.min(), let maxVal = self.max(), minVal != maxVal else {
             self = Array(repeating: 0.5, count: count)
             return
@@ -9,7 +9,7 @@ extension Array where Element: BinaryFloatingPoint {
         self = map { ($0 - minVal) / (maxVal - minVal) }
     }
 
-    mutating func normalize() {
+    public mutating func normalize() {
         let mean = reduce(Element(0), +) / Element(count)
         let diffsq = map({ ($0 - mean) * ($0 - mean) })
         let std_ = diffsq.reduce(Element(0), +) / Element(count)
