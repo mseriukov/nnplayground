@@ -5,8 +5,7 @@ import Testing
 struct BroadcastingTests {
     @Test
     func broadcastScalar() throws {
-        let storage = TensorStorage<Double>([42])
-        let a = Tensor(storage: storage, shape: [])
+        let a = Tensor(storage: [42], shape: [])
         let b = a.broadcastTo([3, 3])!.makeContiguous()
         #expect(b.storage.data == [
             42, 42, 42,
@@ -17,8 +16,7 @@ struct BroadcastingTests {
 
     @Test
     func broadcastRows() throws {
-        let storage = TensorStorage<Double>([1, 2, 3])
-        let a = Tensor(storage: storage, shape: [1, 3])
+        let a = Tensor(storage: [1, 2, 3], shape: [1, 3])
         let b = a.broadcastTo([3, 3])!.makeContiguous()
         #expect(b.storage.data == [
             1, 2, 3,
@@ -29,12 +27,14 @@ struct BroadcastingTests {
 
     @Test
     func broadcastCols() throws {
-        let storage = TensorStorage<Double>([
-            1,
-            2,
-            3
-        ])
-        let a = Tensor(storage: storage, shape: [3, 1])
+        let a = Tensor(
+            storage: [
+                1,
+                2,
+                3
+            ],
+            shape: [3, 1]
+        )
         let b = a.broadcastTo([3, 3])!.makeContiguous()
         #expect(b.storage.data == [
             1, 1, 1,

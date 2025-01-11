@@ -1,6 +1,10 @@
 public final class TensorStorage<Element: BinaryFloatingPoint> {
     var data: [Element]
 
+    var size: Int {
+        data.count
+    }
+
     public init(_ data: [Element]) {
         self.data = data
     }
@@ -25,5 +29,11 @@ public final class TensorStorage<Element: BinaryFloatingPoint> {
         set {
             data[index] = newValue
         }
+    }
+}
+
+extension TensorStorage: ExpressibleByArrayLiteral {
+    public convenience init(arrayLiteral elements: Element...) {
+        self.init(elements)
     }
 }

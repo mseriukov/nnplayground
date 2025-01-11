@@ -2,7 +2,7 @@ import Accelerate
 
 public struct Tensor<Element: BinaryFloatingPoint> {
     public typealias Storage = TensorStorage<Element>
-    public let size: Int
+    public private(set) var size: Int
     public private(set) var shape: [Int]
     public private(set) var strides: [Int]
     public private(set) var offset: Int
@@ -30,6 +30,16 @@ public struct Tensor<Element: BinaryFloatingPoint> {
         }
     }
 
+    init(shape: [Int], value: Element) {
+        let size = shape.reduce(1, *)
+        let storage = TensorStorage(Array<Element>(repeating: value, count: size))
+        self.init(storage: storage, shape: shape)
+    }
+
+    init(zeros shape: [Int]) {
+        self.init(shape: shape, value: 0.0)
+    }
+
     mutating func zeroGradient() {
         // Initialize gradient storage with zeros if not already present
         gradientStorage = TensorStorage(size: storage.data.count, initialValue: 0.0)
@@ -41,6 +51,12 @@ public struct Tensor<Element: BinaryFloatingPoint> {
     }
 
     var isContiguous: Bool {
+        if size < storage.size {
+            return false
+        }
+        if offset != 0 {
+            return false
+        }
         var expectedStride = 1
         for i in (0..<shape.count).reversed() {
             if strides[i] != expectedStride {
@@ -80,23 +96,25 @@ public struct Tensor<Element: BinaryFloatingPoint> {
         }
     }
 
-    public subscript(_ s: [Int]) -> Element {
+    public subscript(_ index: [Int]) -> Element {
         get {
-            let index = flatIndex(with: s) + offset
-            return storage[index]
+            return storage[flatIndex(index)]
         }
         set {
             ensureUniquelyReferenced()
-            let index = flatIndex(with: s) + offset
-            storage[index] = newValue
+            storage[flatIndex(index)] = newValue
         }
+    }
+
+    public mutating func assign(_ value: Element, at index: [Int]) {
+        storage[flatIndex(index)] = value
     }
 
     public subscript(_ s: Int...) -> Element {
         self[s]
     }
 
-    private func flatIndex(with indicies: [Int]) -> Int {
+    private func flatIndex(_ indicies: [Int]) -> Int {
         precondition(indicies.count == shape.count, "Indicies and shape mismatch")
         return zip(indicies, strides).reduce(0, { $0 + $1.0 * $1.1 }) + offset
     }
@@ -126,12 +144,14 @@ public struct Tensor<Element: BinaryFloatingPoint> {
         )
     }
 
-    public func slice(start: [Int], size: [Int]) -> Self {
+    public func slice(start: [Int], shape: [Int]) -> Self {
         var newTensor = self
-        newTensor.shape = size
-        newTensor.offset = flatIndex(with: start)
+        newTensor.shape = shape
+        newTensor.offset = flatIndex(start)
+        newTensor.size = shape.reduce(1, *)
         return newTensor
     }
+
 }
 
 extension Tensor {
@@ -156,7 +176,7 @@ extension Tensor {
         return resultShape
     }
 
-    func broadcastTo(_ shape: [Int]) -> Self? {
+    public func broadcastTo(_ shape: [Int]) -> Self? {
         if isScalar {
             var scalarView = self
             scalarView.shape = shape
@@ -191,6 +211,117 @@ extension Tensor {
         broadcastedTensor.strides = newStrides
         return broadcastedTensor
     }
+
+    public func forEachIndex(_ closure: ([Int]) -> Void) {
+        for index in TensorIndexSequence(shape: shape) {
+            closure(index)
+        }
+    }
+
+    public mutating func assign(start: [Int], tensor: Self) {
+        // TODO: verify preconditions.
+        precondition(start.count == shape.count, "Slice must have the same number of dimensions as the tensor.")
+        for (start, end) in zip(start, tensor.shape) {
+            precondition(start + end <= self.shape[0], "Slice exceeds tensor dimensions.")
+        }
+
+        var slicedView = self.slice(
+            start: start,
+            shape: tensor.shape
+        )
+        slicedView.forEachIndex { index in
+            slicedView.assign(tensor[index], at: index)
+        }
+    }
+
+    public func matmul(_ other: Self) -> Self {
+        precondition(shape.count == 2 && other.shape.count == 2, "Both tensors must be 2D for matmul.")
+        precondition(shape[1] == other.shape[0], "Inner dimensions must match for matmul.")
+
+        let m = shape[0]
+        let n = shape[1]
+        let p = other.shape[1]
+
+        let result = Self(zeros: [m, p])
+        result.forEachIndex { resultIndex in
+            let i = resultIndex[0]
+            let j = resultIndex[1]
+
+            var sum: Element = 0.0
+            for k in 0..<n {
+                let a = self.flatIndex([i, k])
+                let b = other.flatIndex([k, j])
+                sum += self.storage[a] * other.storage[b]
+            }
+            result.storage[result.flatIndex(resultIndex)] = sum
+        }
+        return result
+    }
+}
+
+
+
+extension Tensor {
+    func unsqueeze(axis: Int) -> Self {
+        assert(axis >= 0 && axis <= self.shape.count, "Axis out of bounds.")
+
+        var newShape = self.shape
+        var newStrides = self.strides
+
+        newShape.insert(1, at: axis)
+        newStrides.insert(0, at: axis) // Stride of 0 since it's a singleton dimension
+
+        return Self(storage: self.storage, shape: newShape, strides: newStrides, offset: self.offset)
+    }
+}
+
+extension Tensor {
+    func batchedMatMul(_ A: Self, _ B: Self) -> Self {
+        assert(A.shape.count == 3 && B.shape.count == 3, "Both tensors must be 3D.")
+        assert(A.shape[0] == B.shape[0], "Batch sizes must match.")
+        assert(A.shape[2] == B.shape[1], "Inner dimensions must match.")
+
+        let batchSize = A.shape[0]
+        let m = A.shape[1]
+        let n = A.shape[2]
+        let p = B.shape[2]
+
+        var result = Tensor(zeros: [batchSize, m, p])
+
+        for i in 0..<batchSize {
+            let a = A.slice(start: [i, 0, 0], shape: [1, m, n]).squeeze(axis: 0)
+            let b = B.slice(start: [i, 0, 0], shape: [1, n, p]).squeeze(axis: 0)
+            let c = a.matmul(b)
+            result.assign(start: [i, 0, 0], tensor: c.unsqueeze(axis: 0))
+        }
+
+        return result
+    }
+}
+
+extension Tensor {
+    func squeeze(axis: Int? = nil) -> Self {
+        var newShape = self.shape
+        var newStrides = self.strides
+
+        if let axis = axis {
+            assert(axis >= 0 && axis < shape.count, "Axis out of bounds.")
+            assert(shape[axis] == 1, "Cannot squeeze a dimension with size greater than 1.")
+
+            newShape.remove(at: axis)
+            newStrides.remove(at: axis)
+        } else {
+            // Squeeze all dimensions with size 1
+            for (dim, size) in shape.enumerated().reversed() {
+                if size == 1 {
+                    newShape.remove(at: dim)
+                    newStrides.remove(at: dim)
+                }
+            }
+        }
+
+        return Self(storage: self.storage, shape: newShape, strides: newStrides, offset: self.offset)
+    }
 }
 
 extension Tensor {
@@ -198,7 +329,7 @@ extension Tensor {
         precondition(shape == other.shape, "Shape mismatch")
         ensureUniquelyReferenced()
 
-        for index in TensorIndexSequence(shape: shape) {
+        forEachIndex { index in
             self[index] += other[index]
         }
     }
@@ -220,7 +351,7 @@ extension Tensor {
         precondition(shape == other.shape, "Shape mismatch")
         ensureUniquelyReferenced()
 
-        for index in TensorIndexSequence(shape: shape) {
+        forEachIndex { index in
             self[index] *= other[index]
         }
     }
