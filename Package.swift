@@ -73,7 +73,7 @@ let package = Package(
         .target(
             name: "NNKit",
             dependencies: [
-                "AlgebraKit", "cnnutils"
+                "AlgebraKit", "cnnutils", "Tensor"
             ],
             path: "Sources/NNKit"
         ),

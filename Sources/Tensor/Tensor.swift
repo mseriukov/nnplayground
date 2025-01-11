@@ -30,13 +30,13 @@ public struct Tensor<Element: BinaryFloatingPoint> {
         }
     }
 
-    init(shape: [Int], value: Element) {
+    public init(shape: [Int], value: Element) {
         let size = shape.reduce(1, *)
         let storage = TensorStorage(Array<Element>(repeating: value, count: size))
         self.init(storage: storage, shape: shape)
     }
 
-    init(zeros shape: [Int]) {
+    public init(zeros shape: [Int]) {
         self.init(shape: shape, value: 0.0)
     }
 
@@ -152,6 +152,14 @@ public struct Tensor<Element: BinaryFloatingPoint> {
         return newTensor
     }
 
+    public func transposed() -> Self {
+        precondition(shape.count == 2, "Must be 2D for now.")
+        return Self(
+            storage: storage,
+            shape: shape.reversed(),
+            strides: strides.reversed()
+        )
+    }
 }
 
 extension Tensor {
@@ -160,7 +168,7 @@ extension Tensor {
     }
 
     private func broadcastShapes(_ shape1: [Int], _ shape2: [Int]) -> [Int]? {
-        let maxRank = max(shape1.count, shape2.count)
+        let maxRank = Swift.max(shape1.count, shape2.count)
         var resultShape = [Int](repeating: 1, count: maxRank)
 
         for i in 0..<maxRank {
@@ -168,7 +176,7 @@ extension Tensor {
             let dim2 = i < maxRank - shape2.count ? 1 : shape2[i - (maxRank - shape2.count)]
 
             if dim1 == dim2 || dim1 == 1 || dim2 == 1 {
-                resultShape[i] = max(dim1, dim2)
+                resultShape[i] = Swift.max(dim1, dim2)
             } else {
                 return nil  // Shapes are incompatible
             }
@@ -257,26 +265,8 @@ extension Tensor {
         }
         return result
     }
-}
 
-
-
-extension Tensor {
-    func unsqueeze(axis: Int) -> Self {
-        assert(axis >= 0 && axis <= self.shape.count, "Axis out of bounds.")
-
-        var newShape = self.shape
-        var newStrides = self.strides
-
-        newShape.insert(1, at: axis)
-        newStrides.insert(0, at: axis) // Stride of 0 since it's a singleton dimension
-
-        return Self(storage: self.storage, shape: newShape, strides: newStrides, offset: self.offset)
-    }
-}
-
-extension Tensor {
-    func batchedMatMul(_ A: Self, _ B: Self) -> Self {
+    public static func batchedMatMul(_ A: Self, _ B: Self) -> Self {
         assert(A.shape.count == 3 && B.shape.count == 3, "Both tensors must be 3D.")
         assert(A.shape[0] == B.shape[0], "Batch sizes must match.")
         assert(A.shape[2] == B.shape[1], "Inner dimensions must match.")
@@ -289,8 +279,8 @@ extension Tensor {
         var result = Tensor(zeros: [batchSize, m, p])
 
         for i in 0..<batchSize {
-            let a = A.slice(start: [i, 0, 0], shape: [1, m, n]).squeeze(axis: 0)
-            let b = B.slice(start: [i, 0, 0], shape: [1, n, p]).squeeze(axis: 0)
+            let a = A.slice(start: [i, 0, 0], shape: [1, m, n]).squeezed([0])
+            let b = B.slice(start: [i, 0, 0], shape: [1, n, p]).squeezed([0])
             let c = a.matmul(b)
             result.assign(start: [i, 0, 0], tensor: c.unsqueeze(axis: 0))
         }
@@ -300,25 +290,37 @@ extension Tensor {
 }
 
 extension Tensor {
-    func squeeze(axis: Int? = nil) -> Self {
+    public mutating func squeeze(_ axes: [Int] = []) {
+        var newShape: [Int] = []
+        var newStrides: [Int] = []
+        var axes = axes
+        if axes.isEmpty {
+            axes = Array(0..<shape.count)
+        }
+        for (axis, size) in shape.enumerated() {
+            if size != 1 || !axes.contains(axis) {
+                newShape.append(size)
+                newStrides.append(strides[axis])
+            }
+        }
+        shape = newShape
+        strides = newStrides
+    }
+
+    public func squeezed(_ axes: [Int] = []) -> Self {
+        var result = self
+        result.squeeze(axes)
+        return result
+    }
+
+    public func unsqueeze(axis: Int) -> Self {
+        assert(axis >= 0 && axis <= self.shape.count, "Axis out of bounds.")
+
         var newShape = self.shape
         var newStrides = self.strides
 
-        if let axis = axis {
-            assert(axis >= 0 && axis < shape.count, "Axis out of bounds.")
-            assert(shape[axis] == 1, "Cannot squeeze a dimension with size greater than 1.")
-
-            newShape.remove(at: axis)
-            newStrides.remove(at: axis)
-        } else {
-            // Squeeze all dimensions with size 1
-            for (dim, size) in shape.enumerated().reversed() {
-                if size == 1 {
-                    newShape.remove(at: dim)
-                    newStrides.remove(at: dim)
-                }
-            }
-        }
+        newShape.insert(1, at: axis)
+        newStrides.insert(0, at: axis) // Stride of 0 since it's a singleton dimension
 
         return Self(storage: self.storage, shape: newShape, strides: newStrides, offset: self.offset)
     }
@@ -365,5 +367,71 @@ extension Tensor {
             other = broadcastedOther
         }
         mul(other)
+    }
+}
+
+extension Tensor {
+    public func reduce(
+        alongAxis axis: Int,
+        keepDims: Bool = false,
+        reduceFunction: (Element, Element) -> Element
+    ) -> Tensor {
+        // Ensure axis is within bounds
+        guard axis >= 0 && axis < shape.count else {
+            fatalError("Axis out of bounds for tensor shape \(shape).")
+        }
+
+        // Compute the new shape
+        var resultShape = shape
+        if keepDims {
+            resultShape[axis] = 1 // Retain the dimension as size 1
+        } else {
+            resultShape.remove(at: axis) // Remove the dimension
+        }
+
+        // Create a result tensor with the new shape
+        var result = Self(zeros: resultShape)
+
+        // Iterate through all indices of the result tensor
+        result.forEachIndex { resultIndex in
+            // Map resultIndex back to the original tensor indices
+            var originalIndex = Array(resultIndex.prefix(axis))
+            if keepDims {
+                originalIndex.append(0) // Placeholder for the reducing axis
+                originalIndex.append(contentsOf: resultIndex.suffix(resultIndex.count - axis - 1))
+            } else {
+                originalIndex.append(0) // Placeholder for reducing axis
+                originalIndex.append(contentsOf: resultIndex.suffix(resultIndex.count - axis))
+            }
+
+            // Apply reduction along the specified axis
+            var accumulatedValue = self[originalIndex]
+            for i in 1..<shape[axis] {
+                originalIndex[axis] = i
+                accumulatedValue = reduceFunction(accumulatedValue, self[originalIndex])
+            }
+
+            result[resultIndex] = accumulatedValue
+        }
+
+        return result
+    }
+}
+
+extension Tensor {
+    func sum(alongAxis axis: Int, keepDims: Bool = false) -> Self {
+        return reduce(alongAxis: axis, keepDims: keepDims, reduceFunction: +)
+    }
+
+    func product(alongAxis axis: Int, keepDims: Bool = false) -> Self {
+        return reduce(alongAxis: axis, keepDims: keepDims, reduceFunction: *)
+    }
+
+    func min(alongAxis axis: Int, keepDims: Bool = false) -> Self {
+        return reduce(alongAxis: axis, keepDims: keepDims, reduceFunction: Swift.min)
+    }
+
+    func max(alongAxis axis: Int, keepDims: Bool = false) -> Self {
+        return reduce(alongAxis: axis, keepDims: keepDims, reduceFunction: Swift.max)
     }
 }
