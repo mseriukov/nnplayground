@@ -1,4 +1,4 @@
-public struct NDIndexSequence: Sequence, IteratorProtocol {
+public struct TensorIndexSequence: Sequence, IteratorProtocol {
     let shape: [Int]
     private var indicies: [Int] = []
 

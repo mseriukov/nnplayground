@@ -59,16 +59,16 @@ let package = Package(
             path: "Sources/AlgebraKitTests"
         ),
         .target(
-            name: "NDArray",
-            path: "Sources/NDArray",
+            name: "Tensor",
+            path: "Sources/Tensor",
             cSettings: [.define("ACCELERATE_NEW_LAPACK")]
         ),
         .testTarget(
-            name: "NDArrayTests",
+            name: "TensorTests",
             dependencies: [
-                "NDArray"
+                "Tensor"
             ],
-            path: "Sources/NDArrayTests"
+            path: "Sources/TensorTests"
         ),
         .target(
             name: "NNKit",

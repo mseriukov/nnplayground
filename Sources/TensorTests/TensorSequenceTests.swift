@@ -1,11 +1,11 @@
 import Testing
-@testable import NDArray
+@testable import Tensor
 
 @Suite
-struct NDIndexTests {
+struct TensorIndexSequenceTests {
     @Test
     func allIndiciesAreCovered() throws {
-        let indexSeq = NDIndexSequence(shape: [3, 3, 3])
+        let indexSeq = TensorIndexSequence(shape: [3, 3, 3])
         let expected = [
             [0, 0, 0],
             [0, 0, 1],
@@ -43,7 +43,7 @@ struct NDIndexTests {
 
     @Test
     func nilIfShapeIsEmpty() throws {
-        var indexSeq = NDIndexSequence(shape: [])
+        var indexSeq = TensorIndexSequence(shape: [])
         #expect(indexSeq.next() == nil)
     }
 }

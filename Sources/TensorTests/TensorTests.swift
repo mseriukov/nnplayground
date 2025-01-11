@@ -1,20 +1,20 @@
 import Testing
-@testable import NDArray
+@testable import Tensor
 
 @Suite
-struct NDArrayTests {
+struct TensoryTests {
     @Test
     func mul() throws {
-        var a = NDArray(
-            storage: NDArrayStorage([
+        var a = Tensor(
+            storage: TensorStorage([
                 1, 2, 3,
                 4, 5, 6,
                 7, 8, 9
             ]),
             shape: [3, 3]
         )
-        let b = NDArray(
-            storage: NDArrayStorage([2]),
+        let b = Tensor(
+            storage: TensorStorage([2]),
             shape: [1]
         )
 
@@ -29,16 +29,16 @@ struct NDArrayTests {
 
     @Test
     func add() throws {
-        var a = NDArray(
-            storage: NDArrayStorage([
+        var a = Tensor(
+            storage: TensorStorage([
                 1, 2, 3,
                 4, 5, 6,
                 7, 8, 9
             ]),
             shape: [3, 3]
         )
-        let b = NDArray(
-            storage: NDArrayStorage([10]),
+        let b = Tensor(
+            storage: TensorStorage([10]),
             shape: [1]
         )
 

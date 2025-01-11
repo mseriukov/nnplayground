@@ -1,12 +1,13 @@
 import Accelerate
 
-public struct NDArray<Element: BinaryFloatingPoint> {
-    public typealias Storage = NDArrayStorage<Element>
-    public private(set) var storage: Storage
+public struct Tensor<Element: BinaryFloatingPoint> {
+    public typealias Storage = TensorStorage<Element>
+    public let size: Int
     public private(set) var shape: [Int]
     public private(set) var strides: [Int]
     public private(set) var offset: Int
-    public let size: Int
+    public private(set) var storage: Storage
+    public private(set) var gradientStorage: Storage?
 
     public init(
         storage: Storage,
@@ -27,6 +28,16 @@ public struct NDArray<Element: BinaryFloatingPoint> {
                 .dropLast()
                 .reduce(Array<Int>([1])) { [$0.first! * $1] + $0 }
         }
+    }
+
+    mutating func zeroGradient() {
+        // Initialize gradient storage with zeros if not already present
+        gradientStorage = TensorStorage(size: storage.data.count, initialValue: 0.0)
+    }
+
+    func gradient() -> Tensor? {
+        guard let gradientStorage else { return nil }
+        return Tensor(storage: gradientStorage, shape: shape)
     }
 
     var isContiguous: Bool {
@@ -52,7 +63,7 @@ public struct NDArray<Element: BinaryFloatingPoint> {
         let newStorage = Storage(size: shape.reduce(1, *))
         var newDataIndex = 0
 
-        let iterator = NDIndexSequence(shape: shape)
+        let iterator = TensorIndexSequence(shape: shape)
 
         for indices in iterator {
             let flatIndex = offset + zip(indices, strides).map(*).reduce(0, +)
@@ -123,7 +134,7 @@ public struct NDArray<Element: BinaryFloatingPoint> {
     }
 }
 
-extension NDArray {
+extension Tensor {
     private static func defaultStrides(for shape: [Int]) -> [Int] {
         DefaultStridesGenerator.defaultStrides(for: shape)
     }
@@ -182,12 +193,12 @@ extension NDArray {
     }
 }
 
-extension NDArray {
+extension Tensor {
     public mutating func add(_ other: Self) {
         precondition(shape == other.shape, "Shape mismatch")
         ensureUniquelyReferenced()
 
-        for index in NDIndexSequence(shape: shape) {
+        for index in TensorIndexSequence(shape: shape) {
             self[index] += other[index]
         }
     }
@@ -204,12 +215,12 @@ extension NDArray {
     }
 }
 
-extension NDArray {
+extension Tensor {
     public mutating func mul(_ other: Self) {
         precondition(shape == other.shape, "Shape mismatch")
         ensureUniquelyReferenced()
 
-        for index in NDIndexSequence(shape: shape) {
+        for index in TensorIndexSequence(shape: shape) {
             self[index] *= other[index]
         }
     }

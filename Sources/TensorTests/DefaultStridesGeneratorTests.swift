@@ -1,5 +1,5 @@
 import Testing
-@testable import NDArray
+@testable import Tensor
 
 @Suite
 struct ShapeTests {

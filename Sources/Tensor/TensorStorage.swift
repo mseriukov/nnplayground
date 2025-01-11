@@ -1,4 +1,4 @@
-public final class NDArrayStorage<Element: BinaryFloatingPoint> {
+public final class TensorStorage<Element: BinaryFloatingPoint> {
     var data: [Element]
 
     public init(_ data: [Element]) {
@@ -12,8 +12,8 @@ public final class NDArrayStorage<Element: BinaryFloatingPoint> {
         self.init(Array(repeating: initialValue, count: size))
     }
 
-    public func copy() -> NDArrayStorage {
-        let newStorage = NDArrayStorage(size: data.count)
+    public func copy() -> TensorStorage {
+        let newStorage = TensorStorage(size: data.count)
         newStorage.data = data
         return newStorage
     }
