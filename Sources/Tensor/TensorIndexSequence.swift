@@ -1,12 +1,12 @@
-public struct TensorIndexSequence: Sequence, IteratorProtocol {
+struct TensorIndexSequence: Sequence, IteratorProtocol {
     let shape: [Int]
     private var indicies: [Int] = []
 
-    public init(shape: [Int]) {
+    init(shape: [Int]) {
         self.shape = shape
     }
 
-    public mutating func next() -> [Int]? {
+    mutating func next() -> [Int]? {
         guard !shape.isEmpty else {
             return nil
         }
