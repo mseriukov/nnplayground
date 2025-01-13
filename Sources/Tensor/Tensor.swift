@@ -5,7 +5,6 @@ public struct Tensor<Element: BinaryFloatingPoint> {
     public internal(set) var strides: [Int]
     public internal(set) var offset: Int
     public internal(set) var storage: Storage
-    public internal(set) var gradientStorage: Storage?
 
     public init(
         storage: Storage,
@@ -75,15 +74,6 @@ public struct Tensor<Element: BinaryFloatingPoint> {
 
     public mutating func assign(_ value: Element, at index: [Int]) {
         storage[flatIndex(index)] = value
-    }
-
-    public mutating func zeroGradient() {
-        gradientStorage = TensorStorage(size: storage.data.count, initialValue: 0.0)
-    }
-
-    public func gradient() -> Tensor? {
-        guard let gradientStorage else { return nil }
-        return Tensor(storage: gradientStorage, shape: shape)
     }
 
     public func makeContiguous() -> Self {
