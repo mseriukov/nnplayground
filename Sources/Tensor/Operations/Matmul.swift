@@ -39,7 +39,7 @@ extension Tensor {
             let a = A.slice(start: [i, 0, 0], shape: [1, m, n]).squeezed([0])
             let b = B.slice(start: [i, 0, 0], shape: [1, n, p]).squeezed([0])
             let c = a.matmul(b)
-            result.assign(start: [i, 0, 0], tensor: c.unsqueeze(axis: 0))
+            result.assign(start: [i, 0, 0], tensor: c.unsqueezed(axis: 0))
         }
 
         return result

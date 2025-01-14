@@ -48,19 +48,19 @@ extension Tensor {
 }
 
 extension Tensor {
-    func sum(alongAxis axis: Int, keepDims: Bool = false) -> Self {
+    public func sum(alongAxis axis: Int, keepDims: Bool = false) -> Self {
         reduce(alongAxis: axis, keepDims: keepDims, reduceFunction: +)
     }
 
-    func product(alongAxis axis: Int, keepDims: Bool = false) -> Self {
+    public func product(alongAxis axis: Int, keepDims: Bool = false) -> Self {
         reduce(alongAxis: axis, keepDims: keepDims, reduceFunction: *)
     }
 
-    func min(alongAxis axis: Int, keepDims: Bool = false) -> Self {
+    public func min(alongAxis axis: Int, keepDims: Bool = false) -> Self {
         reduce(alongAxis: axis, keepDims: keepDims, reduceFunction: Swift.min)
     }
 
-    func max(alongAxis axis: Int, keepDims: Bool = false) -> Self {
+    public func max(alongAxis axis: Int, keepDims: Bool = false) -> Self {
         reduce(alongAxis: axis, keepDims: keepDims, reduceFunction: Swift.max)
     }
 }

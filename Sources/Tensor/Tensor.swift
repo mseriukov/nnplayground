@@ -6,6 +6,10 @@ public struct Tensor<Element: BinaryFloatingPoint> {
     public internal(set) var offset: Int
     public internal(set) var storage: Storage
 
+    public var rank: Int {
+        shape.count
+    }
+
     public init(
         storage: Storage,
         shape: [Int],
@@ -25,6 +29,11 @@ public struct Tensor<Element: BinaryFloatingPoint> {
                 .dropLast()
                 .reduce(Array<Int>([1])) { [$0.first! * $1] + $0 }
         }
+    }
+
+    public init(_ shape: [Int], _ data: [Element]) {
+        precondition(shape.reduce(1, *) == data.count, "Data doesn't follow shape.")
+        self.init(storage: TensorStorage(data), shape: shape)
     }
 
     public init(shape: [Int], value: Element) {

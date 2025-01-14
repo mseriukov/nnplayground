@@ -1,45 +1,55 @@
 import Tensor
 
-public class TensorLinearLayer<Element: BinaryFloatingPoint> {
-    var weights: Tensor<Element> // Shape: [output, input]
-    var bias: Tensor<Element>? // Shape: [output]
+public class TensorLinearLayer<Element> where
+    Element: BinaryFloatingPoint,
+    Element.RawSignificand: FixedWidthInteger
+{
+    var weights: TensorParameter<Element> // Shape: [output, input]
+    var bias: TensorParameter<Element>? // Shape: [output]
 
     // Cache for forward input
     private var cachedInput: Tensor<Element>?
+    private var randomGenerator: any RandomNumberGenerator = SystemRandomNumberGenerator()
 
     init(inputDim: Int, outputDim: Int, includeBias: Bool = true) {
-        weights = Tensor(zeros: [outputDim, inputDim]) // TODO: Add randomization
-        bias = includeBias ? Tensor(zeros: [outputDim]) : nil // TODO: Add randomization
+        weights = TensorParameter(tensor: Tensor.random(
+            shape: [outputDim, inputDim],
+            distribution: .kaiming(channels: inputDim),
+            generator: &randomGenerator
+        ))
+        bias = includeBias ? TensorParameter(tensor: Tensor.random(
+            shape: [outputDim],
+            distribution: .kaiming(channels: inputDim),
+            generator: &randomGenerator
+        )) : nil
     }
 
     func forward(input: Tensor<Element>) -> Tensor<Element> {
-        precondition(input.shape.last == weights.shape.last, "Input dimension must match weight's input_dim.")
-        var output = input.matmul(weights.transposed())
+        var input = input
+        // Ensure we have batch dimension.
+        if input.rank == 1 {
+            input.unsqueeze(axis: 0)
+        }
+        precondition(input.shape.last == weights.value.shape.last, "Input dimension must match weight's input_dim.")
+        var output = input.matmul(weights.value.transposed())
         cachedInput = input
-        if let b = bias?.broadcastTo(output.shape) {
+        if let b = bias?.value.broadcastTo(output.shape) {
             output.add(b)
         }
         return output
     }
 
-    func backward(gradOutput: Tensor<Element>) -> Tensor<Element> {
-        // Ensure the input is cached
+    func backward(localGradient: Tensor<Element>) -> Tensor<Element> {
         guard let input = self.cachedInput else {
             fatalError("No cached input. Did you forget to perform a forward pass?")
         }
 
-        // Gradient with respect to input
-        let gradInput = gradOutput.matmul(weights.transposed())
+        let gradInput = localGradient.matmul(weights.value.transposed())
 
-//        // Gradient with respect to weights
-//        weights.grad.add(input.transposed().matmul(gradOutput))
-//
-//        // Gradient with respect to bias
-//        bias.grad += gradOutput.sum(alongAxis: 0)
+        weights.gradient?.add(input.transposed().matmul(localGradient))
+        bias?.gradient?.add(localGradient.sum(alongAxis: 0))
 
-        // Clear cached input to free memory
-        self.cachedInput = nil
-
+        cachedInput = nil
         return gradInput
     }
 }

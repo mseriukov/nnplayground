@@ -22,7 +22,7 @@ extension Tensor {
         return result
     }
 
-    public func unsqueeze(axis: Int) -> Self {
+    public mutating func unsqueeze(axis: Int) {
         assert(axis >= 0 && axis <= self.shape.count, "Axis out of bounds.")
 
         var newShape = self.shape
@@ -31,6 +31,13 @@ extension Tensor {
         newShape.insert(1, at: axis)
         newStrides.insert(0, at: axis) // Stride of 0 since it's a singleton dimension
 
-        return Self(storage: self.storage, shape: newShape, strides: newStrides, offset: self.offset)
+        shape = newShape
+        strides = newStrides
+    }
+
+    public func unsqueezed(axis: Int) -> Self {
+        var result = self
+        result.unsqueeze(axis: axis)
+        return result
     }
 }
