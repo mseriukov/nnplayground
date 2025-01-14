@@ -129,3 +129,17 @@ public struct Tensor<Element: BinaryFloatingPoint> {
         return strides
     }
 }
+
+extension Tensor: ExpressibleByFloatLiteral
+    where Element: _ExpressibleByBuiltinFloatLiteral
+{
+    public init(floatLiteral value: Element) {
+        self.init(shape: [1], value: value)
+    }
+}
+
+extension Tensor: ExpressibleByIntegerLiteral {
+    public init(integerLiteral value: Int) {
+        self.init(shape: [1], value: Element(value))
+    }
+}

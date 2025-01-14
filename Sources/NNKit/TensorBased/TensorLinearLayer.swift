@@ -6,8 +6,7 @@ public class TensorLinearLayer<Element> where
 {
     var weights: TensorParameter<Element> // Shape: [output, input]
     var bias: TensorParameter<Element>? // Shape: [output]
-
-    // Cache for forward input
+    
     private var cachedInput: Tensor<Element>?
     private var randomGenerator: any RandomNumberGenerator = SystemRandomNumberGenerator()
 
