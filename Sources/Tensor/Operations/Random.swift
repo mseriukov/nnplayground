@@ -1,6 +1,9 @@
+import Foundation
+
 public enum Distribution<Element: BinaryFloatingPoint> {
     case uniform(lowerBound: Element = 0, upperBound: Element = 1)
     case normal(mean: Element = 0, standardDeviation: Element = 1)
+    case kaiming(channels: Int)
 }
 
 extension Tensor where Element.RawSignificand: FixedWidthInteger {
@@ -12,7 +15,7 @@ extension Tensor where Element.RawSignificand: FixedWidthInteger {
         let concreteDistribution = createDistribution(from: distribution)
         let totalCount = shape.reduce(1, *)
         let data: [Element] = (0..<totalCount).map { _ in
-            concreteDistribution.next(using: &generator) as! Element
+            Element(concreteDistribution.next(using: &generator))
         }
         return Tensor(
             storage: TensorStorage(data),
@@ -20,14 +23,29 @@ extension Tensor where Element.RawSignificand: FixedWidthInteger {
         )
     }
 
-    private static func createDistribution<E>(
-        from distribution: Distribution<E>
-    ) -> some RandomDistribution where E: BinaryFloatingPoint, E.RawSignificand: FixedWidthInteger {
+    private static func createDistribution<DistributionElement>(
+        from distribution: Distribution<DistributionElement>
+    ) -> some RandomDistribution where
+        DistributionElement: BinaryFloatingPoint,
+        DistributionElement.RawSignificand: FixedWidthInteger
+    {
         switch distribution {
         case let .uniform(lowerBound, upperBound):
-            return UniformDistribution(lowerBound: lowerBound, upperBound: upperBound).asAnyRandomDistribution()
+            UniformDistribution(
+                lowerBound: lowerBound,
+                upperBound: upperBound
+            ).asAnyRandomDistribution()
+
         case let .normal(mean, standardDeviation):
-            return NormalDistribution(mean: mean, standardDeviation: standardDeviation).asAnyRandomDistribution()
+            NormalDistribution(
+                mean: mean,
+                standardDeviation: standardDeviation
+            ).asAnyRandomDistribution()
+
+        case let .kaiming(channels):
+            KaimingDistribution<DistributionElement>(
+                channels: channels
+            ).asAnyRandomDistribution()
         }
     }
 }
