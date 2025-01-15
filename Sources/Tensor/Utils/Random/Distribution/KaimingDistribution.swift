@@ -14,8 +14,4 @@ public struct KaimingDistribution<Element>: RandomDistribution where
     public func next(using generator: inout RandomNumberGenerator) -> Element {
         sqrt(2.0 / Element(channels)) * normalDistribution.next(using: &generator)
     }
-
-    func asAnyRandomDistribution() -> AnyRandomDistribution<Element> {
-        AnyRandomDistribution(self)
-    }
 }

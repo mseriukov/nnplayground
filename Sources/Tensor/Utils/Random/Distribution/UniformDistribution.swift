@@ -13,8 +13,4 @@ public struct UniformDistribution<Element>: RandomDistribution where
     public func next(using generator: inout RandomNumberGenerator) -> Element {
         Element.random(in: lowerBound..<upperBound, using: &generator)
     }
-
-    func asAnyRandomDistribution() -> AnyRandomDistribution<Element> {
-        AnyRandomDistribution(self)
-    }
 }

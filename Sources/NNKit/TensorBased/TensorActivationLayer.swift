@@ -1,7 +1,7 @@
 import Tensor
 import Accelerate
 
-public class TensorActivationLayer<Element> where
+public class TensorActivationLayer<Element>: TensorLayer where
     Element: BinaryFloatingPoint,
     Element.RawSignificand: FixedWidthInteger
 {
@@ -12,6 +12,8 @@ public class TensorActivationLayer<Element> where
     }
 
     public let activation: Activation
+
+    public let parameters: [TensorParameter<Element>] = []
 
     private var cachedInput: Tensor<Element>?
     private var cachedSoftmax: Tensor<Element>?

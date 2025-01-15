@@ -20,8 +20,4 @@ public struct NormalDistribution<Element>: RandomDistribution where
         )
         return mean + standardDeviation * z0
     }
-
-    func asAnyRandomDistribution() -> AnyRandomDistribution<Element> {
-        AnyRandomDistribution(self)
-    }
 }

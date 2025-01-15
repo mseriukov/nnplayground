@@ -23,29 +23,26 @@ extension Tensor where Element.RawSignificand: FixedWidthInteger {
         )
     }
 
-    private static func createDistribution<DistributionElement>(
-        from distribution: Distribution<DistributionElement>
-    ) -> some RandomDistribution where
-        DistributionElement: BinaryFloatingPoint,
-        DistributionElement.RawSignificand: FixedWidthInteger
-    {
+    private static func createDistribution(
+        from distribution: Distribution<Element>
+    ) -> any RandomDistribution<Element> {
         switch distribution {
         case let .uniform(lowerBound, upperBound):
             UniformDistribution(
                 lowerBound: lowerBound,
                 upperBound: upperBound
-            ).asAnyRandomDistribution()
+            )
 
         case let .normal(mean, standardDeviation):
             NormalDistribution(
                 mean: mean,
                 standardDeviation: standardDeviation
-            ).asAnyRandomDistribution()
+            )
 
         case let .kaiming(channels):
-            KaimingDistribution<DistributionElement>(
+            KaimingDistribution(
                 channels: channels
-            ).asAnyRandomDistribution()
+            )
         }
     }
 }
