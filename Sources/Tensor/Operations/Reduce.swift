@@ -1,6 +1,17 @@
 
 extension Tensor {
     public func reduce(
+        initialValue: Element,
+        reduceFunction: (Element, Element) -> Element
+    ) -> Element {
+        var result = initialValue
+        self.forEachIndex { index in
+            result = reduceFunction(result, self[index])
+        }
+        return result
+    }
+
+    public func reduce(
         alongAxis axis: Int,
         keepDims: Bool = false,
         reduceFunction: (Element, Element) -> Element
@@ -62,5 +73,20 @@ extension Tensor {
 
     public func max(alongAxis axis: Int, keepDims: Bool = false) -> Self {
         reduce(alongAxis: axis, keepDims: keepDims, reduceFunction: Swift.max)
+    }
+
+    public func sum() -> Self {
+        let value = reduce(initialValue: 0, reduceFunction: +)
+        return Self([1], [value])
+    }
+
+    public func max() -> Self {
+        let value = reduce(initialValue: Element.leastNonzeroMagnitude, reduceFunction: Swift.max)
+        return Self([1], [value])
+    }
+    
+    public func min() -> Self {
+        let value = reduce(initialValue: Element.greatestFiniteMagnitude, reduceFunction: Swift.min)
+        return Self([1], [value])
     }
 }

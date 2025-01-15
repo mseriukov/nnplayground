@@ -40,6 +40,10 @@ extension Tensor {
         performOperation(lhs, rhs, *)
     }
 
+    public static func /(lhs: Tensor<Element>, rhs: Tensor<Element>) -> Tensor<Element> {
+        performOperation(lhs, rhs, /)
+    }
+
     public static func +(lhs: Tensor<Element>, rhs: Tensor<Element>) -> Tensor<Element> {
         performOperation(lhs, rhs, +)
     }

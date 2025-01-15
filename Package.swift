@@ -8,6 +8,7 @@ let package = Package(
     platforms: [.macOS(.v14)],
     dependencies: [
         .package(url: "https://github.com/apple/swift-argument-parser.git", from: "1.5.0"),
+        .package(url: "https://github.com/apple/swift-numerics", from: "1.0.0"),
         .package(url: "https://github.com/SnapKit/SnapKit.git", from: "5.7.1")
     ],
     targets: [
@@ -60,6 +61,9 @@ let package = Package(
         ),
         .target(
             name: "Tensor",
+            dependencies: [
+                .product(name: "Numerics", package: "swift-numerics"),
+            ],
             path: "Sources/Tensor",
             cSettings: [.define("ACCELERATE_NEW_LAPACK")]
         ),
