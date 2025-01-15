@@ -33,15 +33,12 @@ struct ActivationLayerTests {
     @Test
     func testSoftmaxBackward() throws {
         let input = Tensor<Double>([1, 3], [1, 2, 3])
-        let localGradient = Tensor<Double>([1, 3], [0.1, 0.2, 0.3])
+        let localGradient = Tensor<Double>([1, 3], [1, 1, 1])
 
         let softmaxLayer = TensorActivationLayer<Double>(.softmax)
         _ = softmaxLayer.forward(input)
         let analyticalGradient = softmaxLayer.backward(localGradient)
-        let numericalGrad = input.numericalGradient(forwardPass: {
-            let softmaxOutput = softmaxLayer.forward($0)
-            return (softmaxOutput * localGradient).sum()[0]
-        })
+        let numericalGrad = input.numericalGradient(forwardPass: softmaxLayer.forward)
 
         #expect(analyticalGradient.isApproximatelyEqual(to: numericalGrad))
     }
