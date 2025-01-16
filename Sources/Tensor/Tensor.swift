@@ -6,6 +6,10 @@ public struct Tensor<Element: BinaryFloatingPoint> {
     public internal(set) var offset: Int
     public internal(set) var storage: Storage
 
+    public var value: Element {
+        storage[0]
+    }
+
     public var rank: Int {
         shape.count
     }
