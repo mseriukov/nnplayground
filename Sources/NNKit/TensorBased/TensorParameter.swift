@@ -17,4 +17,12 @@ public class TensorParameter<Element> where
     public func resetGrad() {
         gradient = nil
     }
+
+    public func randomize(_ generator: inout RandomNumberGenerator) {
+        value = Tensor.random(
+            shape: value.shape,
+            distribution: .kaiming(channels: value.shape.last!),
+            generator: &generator
+        )
+    }
 }

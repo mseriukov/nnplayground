@@ -1,6 +1,6 @@
 import Tensor
 
-protocol LossFunction<Element> {
+public protocol LossFunction<Element> {
     associatedtype Element where Element: BinaryFloatingPoint, Element.RawSignificand: FixedWidthInteger
 
     func forward(predicted: Tensor<Element>, actual: Tensor<Element>) -> Tensor<Element>

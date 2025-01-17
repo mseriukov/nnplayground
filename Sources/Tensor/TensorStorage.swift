@@ -1,7 +1,7 @@
 public final class TensorStorage<Element: BinaryFloatingPoint> {
-    var data: [Element]
+    public var data: [Element]
 
-    var size: Int {
+    public var size: Int {
         data.count
     }
 

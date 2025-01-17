@@ -14,7 +14,7 @@ public class TensorLinearLayer<Element>: TensorLayer where
     private var cachedInput: Tensor<Element>?
     private var randomGenerator: any RandomNumberGenerator = SystemRandomNumberGenerator()
 
-    init(inputDim: Int, outputDim: Int, includeBias: Bool = true) {
+    public init(inputDim: Int, outputDim: Int, includeBias: Bool = true) {
         weights = TensorParameter(tensor: Tensor.random(
             shape: [outputDim, inputDim],
             distribution: .kaiming(channels: inputDim),

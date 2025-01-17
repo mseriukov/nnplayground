@@ -27,7 +27,8 @@ struct nnplayground: ParsableCommand {
 
     func getArgumentAndRun(inputURL: URL, testURL: URL) {
         do {
-            try MLPTests().run(url: inputURL, testURL: testURL)
+            //try MLPTests().run(url: inputURL, testURL: testURL)
+            try TensorMLPTests().train(inputURL: inputURL)
         } catch {
             print("Failed with error: \(error)")
         }
