@@ -1,12 +1,11 @@
-public struct Tensor<Element: BinaryFloatingPoint> {
-    public typealias Storage = TensorStorage<Element>
+public struct Tensor {
     public internal(set) var size: Int
     public internal(set) var shape: [Int]
     public internal(set) var strides: [Int]
     public internal(set) var offset: Int
-    public internal(set) var storage: Storage
+    public internal(set) var storage: TensorStorage
 
-    public var value: Element {
+    public var value: Double {
         storage[0]
     }
 
@@ -15,7 +14,7 @@ public struct Tensor<Element: BinaryFloatingPoint> {
     }
 
     public init(
-        storage: Storage,
+        storage: TensorStorage,
         shape: [Int],
         strides: [Int]? = nil,
         offset: Int = 0
@@ -35,14 +34,14 @@ public struct Tensor<Element: BinaryFloatingPoint> {
         }
     }
 
-    public init(_ shape: [Int], _ data: [Element]) {
+    public init(_ shape: [Int], _ data: [Double]) {
         precondition(shape.reduce(1, *) == data.count, "Data doesn't follow shape.")
         self.init(storage: TensorStorage(data), shape: shape)
     }
 
-    public init(shape: [Int], value: Element) {
+    public init(shape: [Int], value: Double) {
         let size = shape.reduce(1, *)
-        let storage = TensorStorage(Array<Element>(repeating: value, count: size))
+        let storage = TensorStorage(Array<Double>(repeating: value, count: size))
         self.init(storage: storage, shape: shape)
     }
 
@@ -71,7 +70,7 @@ public struct Tensor<Element: BinaryFloatingPoint> {
         return shape == [] || shape == [1]
     }
 
-    public subscript(_ index: [Int]) -> Element {
+    public subscript(_ index: [Int]) -> Double {
         get {
             return storage[flatIndex(index)]
         }
@@ -81,11 +80,11 @@ public struct Tensor<Element: BinaryFloatingPoint> {
         }
     }
 
-    public subscript(_ s: Int...) -> Element {
+    public subscript(_ s: Int...) -> Double {
         self[s]
     }
 
-    public mutating func assign(_ value: Element, at index: [Int]) {
+    public mutating func assign(_ value: Double, at index: [Int]) {
         storage[flatIndex(index)] = value
     }
 
@@ -94,7 +93,7 @@ public struct Tensor<Element: BinaryFloatingPoint> {
             return self
         }
 
-        let newStorage = Storage(size: shape.reduce(1, *))
+        let newStorage = TensorStorage(size: shape.reduce(1, *))
         var newDataIndex = 0
 
         let iterator = TensorIndexSequence(shape: shape)
@@ -134,16 +133,14 @@ public struct Tensor<Element: BinaryFloatingPoint> {
     }
 }
 
-extension Tensor: ExpressibleByFloatLiteral
-    where Element: _ExpressibleByBuiltinFloatLiteral
-{
-    public init(floatLiteral value: Element) {
+extension Tensor: ExpressibleByFloatLiteral {
+    public init(floatLiteral value: Double) {
         self.init(shape: [1], value: value)
     }
 }
 
 extension Tensor: ExpressibleByIntegerLiteral {
     public init(integerLiteral value: Int) {
-        self.init(shape: [1], value: Element(value))
+        self.init(shape: [1], value: Double(value))
     }
 }

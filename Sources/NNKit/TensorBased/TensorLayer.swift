@@ -1,10 +1,8 @@
 import Tensor
 
-public protocol TensorLayer<Element> {
-    associatedtype Element where Element: BinaryFloatingPoint, Element.RawSignificand: FixedWidthInteger
+public protocol TensorLayer {
+    var parameters: [TensorParameter] { get }
 
-    var parameters: [TensorParameter<Element>] { get }
-
-    func forward(_ input: Tensor<Element>) -> Tensor<Element>
-    func backward(_ localGradient: Tensor<Element>) -> Tensor<Element>
+    func forward(_ input: Tensor) -> Tensor
+    func backward(_ localGradient: Tensor) -> Tensor
 }

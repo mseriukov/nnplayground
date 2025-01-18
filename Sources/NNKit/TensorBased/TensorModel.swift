@@ -1,22 +1,19 @@
 import Tensor
 
-public class TensorModel<Element> where
-    Element: BinaryFloatingPoint,
-    Element.RawSignificand: FixedWidthInteger
-{
-    private var layers: [any TensorLayer<Element>] = []
-    private let optimizer: any Optimizer<Element>
+public class TensorModel {
+    private var layers: [any TensorLayer] = []
+    private let optimizer: any Optimizer
 
-    public init(layers: [any TensorLayer<Element>], optimizer: any Optimizer<Element>) {
+    public init(layers: [any TensorLayer], optimizer: any Optimizer) {
         self.layers = layers
         self.optimizer = optimizer
     }
 
-    public func parameters() -> [TensorParameter<Element>] {
+    public func parameters() -> [TensorParameter] {
         layers.flatMap { $0.parameters }
     }
 
-    public func forward(_ input: Tensor<Element>) -> Tensor<Element> {
+    public func forward(_ input: Tensor) -> Tensor {
         var output = input
         for layer in layers {
             output = layer.forward(output)
@@ -24,7 +21,7 @@ public class TensorModel<Element> where
         return output
     }
 
-    public func backward(_ lossGradient: Tensor<Element>) {
+    public func backward(_ lossGradient: Tensor) {
         var gradient = lossGradient
         for layer in layers.reversed() {
             gradient = layer.backward(gradient)
@@ -32,18 +29,19 @@ public class TensorModel<Element> where
     }
 
     public func train(
-        data: [(Tensor<Element>, Tensor<Element>)],
+        data: [(Tensor, Tensor)],
         batchSize: Int,
         epochs: Int,
-        lossFunction: any LossFunction<Element>
+        lossFunction: any LossFunction
     ) {
         for epoch in 0..<epochs {
-            var totalLoss: Element = 0.0
+            var totalLoss: Double = 0.0
             var batchCount = 0
 
-            for batch in data.chunked(into: batchSize) {
-                let inputs = stacked(batch.map { $0.0 })
-                let targets = stacked(batch.map { $0.1 })
+            let chunkedData = data.chunked(into: batchSize)
+            for batch in chunkedData {
+                let inputs = Tensor.stacked(batch.map { $0.0 })
+                let targets = Tensor.stacked(batch.map { $0.1 })
 
                 let outputs = forward(inputs)
 
@@ -56,9 +54,10 @@ public class TensorModel<Element> where
                 optimizer.step()
 
                 batchCount += 1
+                print("Epoch \(epoch + 1), batch: \(batchCount) / \(chunkedData.count)")
             }
 
-            print("Epoch \(epoch + 1), Loss: \(totalLoss / Element(batchCount))")
+            print("Epoch \(epoch + 1), Loss: \(totalLoss / Double(batchCount))")
         }
     }
 }

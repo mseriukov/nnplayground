@@ -1,7 +1,7 @@
 import Numerics
 
 extension Tensor {
-    public func isApproximatelyEqual(to other: Tensor<Element>) -> Bool {
+    public func isApproximatelyEqual(to other: Self) -> Bool {
         guard shape == other.shape else {
             return false
         }

@@ -1,10 +1,7 @@
 import Tensor
 import Accelerate
 
-public class TensorActivationLayer<Element>: TensorLayer where
-    Element: BinaryFloatingPoint,
-    Element.RawSignificand: FixedWidthInteger
-{
+public class TensorActivationLayer: TensorLayer {
     public enum Activation {
         case sigmoid
         case relu
@@ -13,27 +10,27 @@ public class TensorActivationLayer<Element>: TensorLayer where
 
     public let activation: Activation
 
-    public let parameters: [TensorParameter<Element>] = []
+    public let parameters: [TensorParameter] = []
 
-    private var cachedInput: Tensor<Element>?
-    private var cachedSoftmax: Tensor<Element>?
+    private var cachedInput: Tensor?
+    private var cachedSoftmax: Tensor?
 
     public init(_ activation: Activation) {
         self.activation = activation
     }
 
-    public func forward(_ input: Tensor<Element>) -> Tensor<Element> {
+    public func forward(_ input: Tensor) -> Tensor {
         self.cachedInput = input
 
         switch activation {
         case .sigmoid:
-            return input.map { Element(1.0 / (1.0 + exp(-Double($0)))) }
+            return input.map { 1.0 / (1.0 + exp(-$0)) }
 
         case .relu:
             return input.map { max(0, $0) }
 
         case .softmax:
-            let expInput = input.map { Element(exp(Double($0))) }
+            let expInput = input.map { exp($0) }
             let sumExp = expInput.sum(alongAxis: expInput.shape.count - 1, keepDims: true)
             let softmaxOutput = expInput / sumExp
             self.cachedSoftmax = softmaxOutput
@@ -41,7 +38,7 @@ public class TensorActivationLayer<Element>: TensorLayer where
         }
     }
 
-    public func backward(_ localGradient: Tensor<Element>) -> Tensor<Element> {
+    public func backward(_ localGradient: Tensor) -> Tensor {
         guard var input = self.cachedInput else {
             fatalError("No cached input. Did you forget to perform a forward pass?")
         }

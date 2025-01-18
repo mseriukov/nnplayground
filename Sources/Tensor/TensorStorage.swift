@@ -1,17 +1,17 @@
-public final class TensorStorage<Element: BinaryFloatingPoint> {
-    public var data: [Element]
+public final class TensorStorage {
+    public var data: [Double]
 
     public var size: Int {
         data.count
     }
 
-    public init(_ data: [Element]) {
+    public init(_ data: [Double]) {
         self.data = data
     }
 
     public convenience init(
         size: Int,
-        initialValue: Element = 0.0
+        initialValue: Double = 0.0
     ) {
         self.init(Array(repeating: initialValue, count: size))
     }
@@ -22,7 +22,7 @@ public final class TensorStorage<Element: BinaryFloatingPoint> {
         return newStorage
     }
 
-    public subscript(_ index: Int) -> Element {
+    public subscript(_ index: Int) -> Double {
         get {
             data[index]
         }
@@ -33,7 +33,7 @@ public final class TensorStorage<Element: BinaryFloatingPoint> {
 }
 
 extension TensorStorage: ExpressibleByArrayLiteral {
-    public convenience init(arrayLiteral elements: Element...) {
+    public convenience init(arrayLiteral elements: Double...) {
         self.init(elements)
     }
 }

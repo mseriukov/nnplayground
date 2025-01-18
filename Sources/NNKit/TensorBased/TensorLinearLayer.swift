@@ -1,17 +1,14 @@
 import Tensor
 
-public class TensorLinearLayer<Element>: TensorLayer where
-    Element: BinaryFloatingPoint,
-    Element.RawSignificand: FixedWidthInteger
-{
-    var weights: TensorParameter<Element> // Shape: [output, input]
-    var bias: TensorParameter<Element>? // Shape: [output]
+public class TensorLinearLayer: TensorLayer  {
+    var weights: TensorParameter // Shape: [output, input]
+    var bias: TensorParameter? // Shape: [output]
 
-    public var parameters: [TensorParameter<Element>] {
+    public var parameters: [TensorParameter] {
         [weights, bias].compactMap { $0 }
     }
 
-    private var cachedInput: Tensor<Element>?
+    private var cachedInput: Tensor?
     private var randomGenerator: any RandomNumberGenerator = SystemRandomNumberGenerator()
 
     public init(inputDim: Int, outputDim: Int, includeBias: Bool = true) {
@@ -28,7 +25,7 @@ public class TensorLinearLayer<Element>: TensorLayer where
         )) : nil
     }
 
-    public func forward(_ input: Tensor<Element>) -> Tensor<Element> {
+    public func forward(_ input: Tensor) -> Tensor {
         var input = input
         // Ensure we have batch dimension.
         if input.rank == 1 {
@@ -43,7 +40,7 @@ public class TensorLinearLayer<Element>: TensorLayer where
         return output
     }
 
-    public func backward(_ localGradient: Tensor<Element>) -> Tensor<Element> {
+    public func backward(_ localGradient: Tensor) -> Tensor {
         guard let input = self.cachedInput else {
             fatalError("No cached input. Did you forget to perform a forward pass?")
         }

@@ -5,26 +5,25 @@ import NNKit
 // MNIST dataset is from https://www.kaggle.com/datasets/oddrationale/mnist-in-csv
 
 class TensorMLPTests {
-    typealias Element = Double
     private var rng: any RandomNumberGenerator = SeedableRandomNumberGenerator(seed: 42)
 
-    var linear1 = TensorLinearLayer<Element>(inputDim: 784, outputDim: 500)
-    var linear2 = TensorLinearLayer<Element>(inputDim: 500, outputDim: 32)
-    var linear3 = TensorLinearLayer<Element>(inputDim: 32, outputDim: 10)
+    var linear1 = TensorLinearLayer(inputDim: 784, outputDim: 500)
+    var linear2 = TensorLinearLayer(inputDim: 500, outputDim: 32)
+    var linear3 = TensorLinearLayer(inputDim: 32, outputDim: 10)
 
-    let model: TensorModel<Element>
+    let model: TensorModel
 
     init() {
         model = .init(
            layers: [
                linear1,
-               TensorActivationLayer<Element>(.relu),
+               TensorActivationLayer(.relu),
                linear2,
-               TensorActivationLayer<Element>(.relu),
+               TensorActivationLayer(.relu),
                linear3,
-               TensorActivationLayer<Element>(.softmax),
+               TensorActivationLayer(.softmax),
            ],
-           optimizer: SGD<Element>(
+           optimizer: SGD(
                parameters: [
                    linear1.parameters,
                    linear2.parameters,
@@ -46,7 +45,7 @@ class TensorMLPTests {
         // Skip csv column labels.
         _ =  try reader.readLine(maxLength: 16536)
 
-        var examples: [(Tensor<Element>, Tensor<Element>)] = []
+        var examples: [(Tensor, Tensor)] = []
 
         while let line = try reader.readLine(maxLength: 16536) {
             let nums = parseStr(line)
@@ -55,7 +54,7 @@ class TensorMLPTests {
             let input = nums.dropFirst()
 
             examples.append((
-                Tensor<Element>([input.count], input.map { Element($0) }), toOneHot(outputLen: 10, n: output)
+                Tensor([input.count], input.map { Double($0) }), toOneHot(outputLen: 10, n: output)
             ))
         }
 
@@ -75,27 +74,27 @@ class TensorMLPTests {
 
     }
 
-    private func toOneHot(outputLen: Int, n: Int) -> Tensor<Element> {
-        var expected = Tensor<Element>.init(zeros: [outputLen])
+    private func toOneHot(outputLen: Int, n: Int) -> Tensor {
+        var expected = Tensor.init(zeros: [outputLen])
         expected.assign(1.0, at: [n])
         return expected
     }
 
-    private func fromOneHot(_ tensor: Tensor<Element>) -> Tensor<Element> {
+    private func fromOneHot(_ tensor: Tensor) -> Tensor{
         precondition(tensor.shape.count == 2)
         let tensor = tensor.makeContiguous()
 
         let classesCount = tensor.shape[0]
         let batchCount = tensor.shape[1]
 
-        var result = Tensor<Element>(zeros: [batchCount])
+        var result = Tensor(zeros: [batchCount])
 
         for batch in 0..<batchCount {
             let data = tensor.slice(start: [batch, 0], shape: [1, classesCount]).makeContiguous().storage.data
             guard let hotIndex = data.indices.max(by: { data[$0] < data[$1] }) else  {
                 fatalError("Can't find hot index")
             }
-            result.assign(Element(hotIndex), at: [batch])
+            result.assign(Double(hotIndex), at: [batch])
         }
         return result
     }

@@ -36,23 +36,23 @@ extension Tensor {
     //    }
     //
 
-    public static func *(lhs: Tensor<Element>, rhs: Tensor<Element>) -> Tensor<Element> {
+    public static func *(lhs: Self, rhs: Self) -> Self {
         performOperation(lhs, rhs, *)
     }
 
-    public static func /(lhs: Tensor<Element>, rhs: Tensor<Element>) -> Tensor<Element> {
+    public static func /(lhs: Self, rhs: Self) -> Self {
         performOperation(lhs, rhs, /)
     }
 
-    public static func +(lhs: Tensor<Element>, rhs: Tensor<Element>) -> Tensor<Element> {
+    public static func +(lhs: Self, rhs: Self) -> Self {
         performOperation(lhs, rhs, +)
     }
 
-    public static func -(lhs: Tensor<Element>, rhs: Tensor<Element>) -> Tensor<Element> {
+    public static func -(lhs: Self, rhs: Self) -> Self {
         performOperation(lhs, rhs, -)
     }
 
-    static func performOperation(_ lhs: Tensor<Element>, _ rhs: Tensor<Element>, _ operation: (Element, Element) -> Element) -> Tensor<Element> {
+    static func performOperation(_ lhs: Self, _ rhs: Self, _ operation: (Double, Double) -> Double) -> Self {
         guard let resultShape = Tensor.broadcastShapes(lhs.shape, rhs.shape) else {
             fatalError("Shapes doesn't match and can't be broadcasted")
         }

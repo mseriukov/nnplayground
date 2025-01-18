@@ -7,7 +7,7 @@ import AlgebraKit
 struct TensorLinearLayerTests {
     @Test()
     func testLinearLayer() throws {
-        let layer = TensorLinearLayer<Double>(
+        let layer = TensorLinearLayer(
             inputDim: 3,
             outputDim: 2,
             includeBias: true
@@ -21,12 +21,12 @@ struct TensorLinearLayerTests {
         ])
         layer.bias?.value = Tensor([2], [7, 9])
 
-        let input = Tensor<Double>([2, 3], [
+        let input = Tensor([2, 3], [
             1, 1, 1, // input 1
             2, 2, 2  // input 2
         ])
 
-        let output = layer.forward(input: input)
+        let output = layer.forward(input)
         
         #expect(output.shape == [2, 2])
         #expect(output.storage.data == [
