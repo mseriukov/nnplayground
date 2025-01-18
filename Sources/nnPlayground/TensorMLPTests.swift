@@ -55,7 +55,7 @@ class TensorMLPTests {
             let input = nums.dropFirst()
 
             examples.append((
-                Tensor<Element>([input.count], input.map { Element($0) }), Tensor<Element>(shape: [1], value: Element(output))
+                Tensor<Element>([input.count], input.map { Element($0) }), toOneHot(outputLen: 10, n: output)
             ))
         }
 
@@ -76,8 +76,8 @@ class TensorMLPTests {
     }
 
     private func toOneHot(outputLen: Int, n: Int) -> Tensor<Element> {
-        var expected = Tensor<Element>.init(zeros: [1, outputLen])
-        expected.assign(1.0, at: [0, n])
+        var expected = Tensor<Element>.init(zeros: [outputLen])
+        expected.assign(1.0, at: [n])
         return expected
     }
 

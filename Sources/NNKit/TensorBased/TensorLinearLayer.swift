@@ -16,7 +16,8 @@ public class TensorLinearLayer<Element>: TensorLayer where
 
     public init(inputDim: Int, outputDim: Int, includeBias: Bool = true) {
         weights = TensorParameter(tensor: Tensor.random(
-            shape: [outputDim, inputDim],
+            shape: [inputDim,
+                    outputDim],
             distribution: .kaiming(channels: inputDim),
             generator: &randomGenerator
         ))
@@ -33,8 +34,8 @@ public class TensorLinearLayer<Element>: TensorLayer where
         if input.rank == 1 {
             input.unsqueeze(axis: 0)
         }
-        precondition(input.shape.last == weights.value.shape.last, "Input dimension must match weight's input_dim.")
-        var output = input.matmul(weights.value.transposed())
+        precondition(input.shape.last == weights.value.shape.first, "Input dimension must match weight's input_dim.")
+        var output = input.matmul(weights.value)
         cachedInput = input
         if let b = bias?.value.broadcastTo(output.shape) {
             output.add(b)
