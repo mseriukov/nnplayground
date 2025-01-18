@@ -44,6 +44,13 @@ public class TensorLinearLayer: TensorLayer  {
         guard let input = self.cachedInput else {
             fatalError("No cached input. Did you forget to perform a forward pass?")
         }
+        if weights.gradient == nil {
+            weights.gradient = Tensor(zeros: weights.value.shape)
+        }
+
+        if let bias, bias.gradient == nil {
+            bias.gradient = Tensor(zeros: bias.value.shape)
+        }
 
         let gradInput = localGradient.matmul(weights.value.transposed())
 

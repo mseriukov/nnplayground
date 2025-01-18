@@ -29,7 +29,7 @@ class TensorMLPTests {
                    linear2.parameters,
                    linear3.parameters
                ].flatMap { $0 },
-               learningRate: 0.1
+               learningRate: 0.01
            )
        )
 
@@ -38,7 +38,7 @@ class TensorMLPTests {
         linear3.parameters.forEach { $0.randomize(&rng) }
     }
 
-    public func train(inputURL: URL) throws {
+    public func train(inputURL: URL, testURL: URL) throws {
         let reader = FileReader(fileURL: inputURL)
         try reader.open()
         defer { reader.close() }
@@ -54,16 +54,41 @@ class TensorMLPTests {
             let input = nums.dropFirst()
 
             examples.append((
-                Tensor([input.count], input.map { Double($0) }), toOneHot(outputLen: 10, n: output)
+                Tensor([input.count], input.map { Double($0) }).normalized(), toOneHot(outputLen: 10, n: output)
+            ))
+        }
+        
+        model.train(
+            data: examples,
+            batchSize: 128,
+            epochs: 10,
+            lossFunction: MeanSquaredError()
+        )
+        try verify(testURL: testURL)
+    }
+
+    public func verify(testURL: URL) throws {
+        let reader = FileReader(fileURL: testURL)
+        try reader.open()
+        defer { reader.close() }
+        // Skip csv column labels.
+        _ =  try reader.readLine(maxLength: 16536)
+
+        var examples: [(Tensor, Tensor)] = []
+
+        while let line = try reader.readLine(maxLength: 16536) {
+            let nums = parseStr(line)
+
+            let output = nums.first!
+            let input = nums.dropFirst()
+
+            examples.append((
+                Tensor([input.count], input.map { Double($0) }).normalized(), toOneHot(outputLen: 10, n: output)
             ))
         }
 
-        model.train(
-            data: examples,
-            batchSize: 16,
-            epochs: 1,
-            lossFunction: MeanSquaredError()
-        )
+        let meanLoss = model.verify(data: examples, lossFunction: MeanSquaredError())
+        print("Verification set mean loss: \(meanLoss)")
     }
 
     private func parseStr(_ input: String) -> [Int] {

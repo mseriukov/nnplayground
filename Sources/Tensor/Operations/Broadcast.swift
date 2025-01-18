@@ -10,7 +10,7 @@ extension Tensor {
             if dim1 == dim2 || dim1 == 1 || dim2 == 1 {
                 resultShape[i] = Swift.max(dim1, dim2)
             } else {
-                return nil  // Shapes are incompatible
+                return nil
             }
         }
         return resultShape
@@ -29,18 +29,18 @@ extension Tensor {
         }
 
         var newStrides = [Int](repeating: 0, count: newShape.count)
-        var offsetShape = self.shape
+        let originalStrides = self.strides
+        let originalShape = self.shape
 
-        // Expand dimensions to match new shape
-        while offsetShape.count < newShape.count {
-            offsetShape.insert(1, at: 0)
-        }
+        let strideOffset = newShape.count - originalShape.count
 
         for i in 0..<newShape.count {
-            if offsetShape[i] == newShape[i] {
-                newStrides[i] = strides[i - (newShape.count - strides.count)]
-            } else if offsetShape[i] == 1 {
-                newStrides[i] = 0  // Broadcast: same value across dimension
+            if i < strideOffset {
+                newStrides[i] = 0
+            } else if originalShape[i - strideOffset] == newShape[i] {
+                newStrides[i] = originalStrides[i - strideOffset]
+            } else if originalShape[i - strideOffset] == 1 {
+                newStrides[i] = 0
             } else {
                 return nil
             }

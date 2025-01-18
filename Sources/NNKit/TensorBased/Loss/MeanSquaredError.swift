@@ -8,6 +8,7 @@ public class MeanSquaredError: LossFunction {
     }
 
     public func backward(predicted: Tensor, actual: Tensor) -> Tensor {
-        2 * (predicted - actual) / Tensor(shape: [1], value: Double(actual.shape.reduce(1, *)))
+        let batchSize = actual.shape[0]
+        return 2 * (predicted - actual) / Tensor(shape: [1], value: Double(batchSize))
     }
 }
