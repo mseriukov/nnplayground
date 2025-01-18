@@ -16,7 +16,7 @@ public class SGD: Optimizer {
     public func step() {
         for param in parameters {
             guard let grad = param.gradient else { continue }
-            param.value = param.value - Tensor([], [learningRate]) * grad
+            param.value = param.value - grad * learningRate
         }
     }
 }

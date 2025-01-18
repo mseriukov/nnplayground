@@ -1,3 +1,5 @@
+import Accelerate
+
 extension Tensor {
 
     //
@@ -35,33 +37,16 @@ extension Tensor {
     //        lhs * (1.0 / rhs)
     //    }
     //
-
-    public static func *(lhs: Self, rhs: Self) -> Self {
-        performOperation(lhs, rhs, *)
-    }
-
+    
     public static func /(lhs: Self, rhs: Self) -> Self {
-        performOperation(lhs, rhs, /)
-    }
-
-    public static func +(lhs: Self, rhs: Self) -> Self {
-        performOperation(lhs, rhs, +)
+        performOperationSlow(lhs, rhs, /)
     }
 
     public static func -(lhs: Self, rhs: Self) -> Self {
-        performOperation(lhs, rhs, -)
-    }
-
-    static func performOperation(_ lhs: Self, _ rhs: Self, _ operation: (Double, Double) -> Double) -> Self {
-        guard let resultShape = Tensor.broadcastShapes(lhs.shape, rhs.shape) else {
-            fatalError("Shapes doesn't match and can't be broadcasted")
+        if lhs.shape == rhs.shape, lhs.isContiguous, rhs.isContiguous {
+            let result = vDSP.subtract(lhs.storage.data, rhs.storage.data)
+            return Self(lhs.shape, result)
         }
-        let lhs = lhs.broadcastTo(resultShape)!
-        let rhs = rhs.broadcastTo(resultShape)!
-        var result = Tensor.init(zeros: resultShape)
-        result.forEachIndex {
-            result.assign(operation(lhs[$0], rhs[$0]), at: $0)
-        }
-        return result
+        return performOperationSlow(lhs, rhs, -)
     }
 }
