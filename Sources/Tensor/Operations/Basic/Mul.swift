@@ -7,7 +7,7 @@ extension Tensor {
 
         if isContiguous {
             let other = other.makeContiguous()
-            vDSP_vmulD(
+            vDSP_vmul(
                 storage.data,
                 1,
                 other.storage.data,
@@ -24,7 +24,7 @@ extension Tensor {
         }
     }
 
-    public func multiplied(by scalar: Double) -> Self {
+    public func multiplied(by scalar: Element) -> Self {
         let t = makeContiguous()
         let result = vDSP.multiply(scalar, t.storage.data)
         return Self(shape, Array(result))
@@ -41,11 +41,11 @@ extension Tensor {
         mul(other)
     }
 
-    public static func *(lhs: Double, rhs: Self) -> Self {
+    public static func *(lhs: Element, rhs: Self) -> Self {
         rhs.multiplied(by: lhs)
     }
 
-    public static func *(lhs: Self, rhs: Double) -> Self {
+    public static func *(lhs: Self, rhs: Element) -> Self {
         lhs.multiplied(by: rhs)
     }
 

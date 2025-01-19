@@ -1,11 +1,12 @@
 public struct Tensor {
+    public typealias Element = Float32
     public internal(set) var size: Int
     public internal(set) var shape: [Int]
     public internal(set) var strides: [Int]
     public internal(set) var offset: Int
     public internal(set) var storage: TensorStorage
 
-    public var value: Double {
+    public var value: Element {
         storage[0]
     }
 
@@ -34,14 +35,14 @@ public struct Tensor {
         }
     }
 
-    public init(_ shape: [Int], _ data: [Double]) {
+    public init(_ shape: [Int], _ data: [Element]) {
         precondition(shape.reduce(1, *) == data.count, "Data doesn't follow shape.")
         self.init(storage: TensorStorage(data), shape: shape)
     }
 
-    public init(shape: [Int], value: Double) {
+    public init(shape: [Int], value: Element) {
         let size = shape.reduce(1, *)
-        let storage = TensorStorage(Array<Double>(repeating: value, count: size))
+        let storage = TensorStorage(Array<Element>(repeating: value, count: size))
         self.init(storage: storage, shape: shape)
     }
 
@@ -70,7 +71,7 @@ public struct Tensor {
         return shape == [] || shape == [1]
     }
 
-    public subscript(_ index: [Int]) -> Double {
+    public subscript(_ index: [Int]) -> Element {
         get {
             return storage[flatIndex(index)]
         }
@@ -80,11 +81,11 @@ public struct Tensor {
         }
     }
 
-    public subscript(_ s: Int...) -> Double {
+    public subscript(_ s: Int...) -> Element {
         self[s]
     }
 
-    public mutating func assign(_ value: Double, at index: [Int]) {
+    public mutating func assign(_ value: Element, at index: [Int]) {
         storage[flatIndex(index)] = value
     }
 
@@ -134,13 +135,13 @@ public struct Tensor {
 }
 
 extension Tensor: ExpressibleByFloatLiteral {
-    public init(floatLiteral value: Double) {
+    public init(floatLiteral value: Element) {
         self.init(shape: [1], value: value)
     }
 }
 
 extension Tensor: ExpressibleByIntegerLiteral {
     public init(integerLiteral value: Int) {
-        self.init(shape: [1], value: Double(value))
+        self.init(shape: [1], value: Element(value))
     }
 }

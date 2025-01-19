@@ -38,7 +38,7 @@ public class TensorModel {
         for epoch in 0..<epochs {
             let startTimestamp = Date.now.timeIntervalSince1970
 
-            var totalLoss: Double = 0.0
+            var totalLoss: Tensor.Element = 0.0
             var batchCount = 0
 
             let chunkedData = data.chunked(into: batchSize)
@@ -61,21 +61,21 @@ public class TensorModel {
                 batchCount += 1
             }
             let duration = Date.now.timeIntervalSince1970 - startTimestamp
-            print("Epoch \(epoch + 1), Loss: \(totalLoss / Double(batchCount)), Duration: \(duration)")
+            print("Epoch \(epoch + 1), Loss: \(totalLoss / Tensor.Element(batchCount)), Duration: \(duration)")
         }
     }
 
     public func verify(
         data: [(Tensor, Tensor)],
         lossFunction: any LossFunction
-    ) -> Double {
-        var totalLoss: Double = 0.0
+    ) -> Tensor.Element {
+        var totalLoss: Tensor.Element = 0.0
         for example in data {
             let output = forward(example.0)
             let target = example.1
             let loss = lossFunction.forward(predicted: output, actual: target)
             totalLoss += loss.value
         }
-        return totalLoss / Double(data.count)
+        return totalLoss / Tensor.Element(data.count)
     }
 }

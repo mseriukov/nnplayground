@@ -1,9 +1,9 @@
 
 extension Tensor {
     public func reduce(
-        initialValue: Double,
-        reduceFunction: (Double, Double) -> Double
-    ) -> Double {
+        initialValue: Element,
+        reduceFunction: (Element, Element) -> Element
+    ) -> Element {
         var result = initialValue
         self.forEachIndex { index in
             result = reduceFunction(result, self[index])
@@ -14,7 +14,7 @@ extension Tensor {
     public func reduce(
         alongAxis axis: Int,
         keepDims: Bool = false,
-        reduceFunction: (Double, Double) -> Double
+        reduceFunction: (Element, Element) -> Element
     ) -> Tensor {
         // Ensure axis is within bounds
         guard axis >= 0 && axis < shape.count else {
@@ -81,12 +81,12 @@ extension Tensor {
     }
 
     public func max() -> Self {
-        let value = reduce(initialValue: Double.leastNonzeroMagnitude, reduceFunction: Swift.max)
+        let value = reduce(initialValue: Element.leastNonzeroMagnitude, reduceFunction: Swift.max)
         return Self([1], [value])
     }
     
     public func min() -> Self {
-        let value = reduce(initialValue: Double.greatestFiniteMagnitude, reduceFunction: Swift.min)
+        let value = reduce(initialValue: Element.greatestFiniteMagnitude, reduceFunction: Swift.min)
         return Self([1], [value])
     }
 }

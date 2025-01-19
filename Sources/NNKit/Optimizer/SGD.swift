@@ -2,9 +2,9 @@ import Tensor
 
 public class SGD: Optimizer {
     var parameters: [TensorParameter]
-    let learningRate: Double
+    let learningRate: Tensor.Element
 
-    public init(parameters: [TensorParameter], learningRate: Double) {
+    public init(parameters: [TensorParameter], learningRate: Tensor.Element) {
         self.parameters = parameters
         self.learningRate = learningRate
     }

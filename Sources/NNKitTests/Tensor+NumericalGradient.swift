@@ -2,11 +2,11 @@ import Tensor
 
 extension Tensor {
     func numericalGradient(
-        epsilon: Double = 1e-5,
+        epsilon: Tensor.Element = 1e-5,
         forwardPass: (Tensor) -> Tensor
     ) -> Tensor {
         var gradient = Tensor(zeros: shape)
-        var loss: (Tensor) -> Double = {
+        let loss: (Tensor) -> Tensor.Element = {
             $0.sum()[0]
         }
         forEachIndex { index in

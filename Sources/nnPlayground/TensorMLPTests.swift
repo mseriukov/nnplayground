@@ -54,7 +54,7 @@ class TensorMLPTests {
             let input = nums.dropFirst()
 
             examples.append((
-                Tensor([input.count], input.map { Double($0) }).normalized(), toOneHot(outputLen: 10, n: output)
+                Tensor([input.count], input.map { Tensor.Element($0) }).normalized(), toOneHot(outputLen: 10, n: output)
             ))
         }
         
@@ -83,7 +83,7 @@ class TensorMLPTests {
             let input = nums.dropFirst()
 
             examples.append((
-                Tensor([input.count], input.map { Double($0) }).normalized(), toOneHot(outputLen: 10, n: output)
+                Tensor([input.count], input.map { Tensor.Element($0) }).normalized(), toOneHot(outputLen: 10, n: output)
             ))
         }
 
@@ -119,7 +119,7 @@ class TensorMLPTests {
             guard let hotIndex = data.indices.max(by: { data[$0] < data[$1] }) else  {
                 fatalError("Can't find hot index")
             }
-            result.assign(Double(hotIndex), at: [batch])
+            result.assign(Tensor.Element(hotIndex), at: [batch])
         }
         return result
     }

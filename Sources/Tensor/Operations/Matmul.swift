@@ -11,11 +11,11 @@ extension Tensor {
 
         let resultSize =  m * p
 
-        let result = UnsafeMutablePointer<Double>.allocate(capacity: resultSize)
+        let result = UnsafeMutablePointer<Element>.allocate(capacity: resultSize)
         defer { result.deallocate() }
         t1.storage.data.withUnsafeBufferPointer { t1ptr in
             t2.storage.data.withUnsafeBufferPointer { t2ptr in
-                cblas_dgemm(
+                cblas_sgemm(
                     CblasRowMajor,      // Row or column major
                     CblasNoTrans,       // Should transpose t1
                     CblasNoTrans,       // Should transpose mt2

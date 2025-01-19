@@ -4,10 +4,10 @@ extension Tensor {
     public func transposed() -> Self {
         precondition(shape.count == 2, "Must be 2D for now.")
         let t = makeContiguous()
-        let result = UnsafeMutablePointer<Double>.allocate(capacity: size)
+        let result = UnsafeMutablePointer<Element>.allocate(capacity: size)
         defer { result.deallocate() }
         t.storage.data.withUnsafeBufferPointer { mPtr in
-            vDSP_mtransD(
+            vDSP_mtrans(
                 mPtr.baseAddress!,
                 1,
                 result,

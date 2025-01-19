@@ -1,8 +1,8 @@
 import Foundation
 
 public enum Distribution {
-    case uniform(lowerBound: Double = 0, upperBound: Double = 1)
-    case normal(mean: Double = 0, standardDeviation: Double = 1)
+    case uniform(lowerBound: Tensor.Element = 0, upperBound: Tensor.Element = 1)
+    case normal(mean: Tensor.Element = 0, standardDeviation: Tensor.Element = 1)
     case kaiming(channels: Int)
 }
 
@@ -14,8 +14,8 @@ extension Tensor {
     ) -> Tensor {
         let concreteDistribution = createDistribution(from: distribution)
         let totalCount = shape.reduce(1, *)
-        let data: [Double] = (0..<totalCount).map { _ in
-            Double(concreteDistribution.next(using: &generator))
+        let data: [Element] = (0..<totalCount).map { _ in
+            Element(concreteDistribution.next(using: &generator))
         }
         return Tensor(
             storage: TensorStorage(data),
@@ -25,7 +25,7 @@ extension Tensor {
 
     private static func createDistribution(
         from distribution: Distribution
-    ) -> any RandomDistribution<Double> {
+    ) -> any RandomDistribution<Element> {
         switch distribution {
         case let .uniform(lowerBound, upperBound):
             UniformDistribution(

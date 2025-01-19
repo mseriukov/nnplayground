@@ -27,7 +27,9 @@ struct ActivationLayerTests {
 
         let output = softmaxLayer.forward(input)
 
-        #expect(output.isApproximatelyEqual(to: Tensor([1, 3], [1.0 / 3.0, 1.0 / 3.0, 1.0 / 3.0])))
+        let expected: [Tensor.Element] = [1.0 / 3.0, 1.0 / 3.0, 1.0 / 3.0]
+
+        #expect(output.isApproximatelyEqual(to: Tensor([1, 3], expected)))
     }
 
     @Test

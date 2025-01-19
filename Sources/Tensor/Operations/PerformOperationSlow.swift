@@ -6,7 +6,7 @@
 //
 
 extension Tensor {
-    static func performOperationSlow(_ lhs: Self, _ rhs: Self, _ operation: (Double, Double) -> Double) -> Self {
+    static func performOperationSlow(_ lhs: Self, _ rhs: Self, _ operation: (Element, Element) -> Element) -> Self {
         guard let resultShape = Tensor.broadcastShapes(lhs.shape, rhs.shape) else {
             fatalError("Shapes doesn't match and can't be broadcasted")
         }
