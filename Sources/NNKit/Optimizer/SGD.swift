@@ -1,9 +1,5 @@
 import Tensor
 
-public protocol Optimizer {
-    func step()
-}
-
 public class SGD: Optimizer {
     var parameters: [TensorParameter]
     let learningRate: Double

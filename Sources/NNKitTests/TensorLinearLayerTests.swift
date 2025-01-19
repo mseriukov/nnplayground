@@ -1,5 +1,4 @@
 import Testing
-import AlgebraKit
 @testable import Tensor
 @testable import NNKit
 
@@ -12,12 +11,13 @@ struct TensorLinearLayerTests {
             outputDim: 2,
             includeBias: true
         )
-        #expect(layer.weights.value.shape == [2, 3])
+        #expect(layer.weights.value.shape == [3, 2])
         #expect(layer.bias?.value.shape == [2])
 
-        layer.weights.value = Tensor([2, 3], [
-            1, 2, 3,
-            4, 5, 6
+        layer.weights.value = Tensor([3, 2], [
+            1, 4,
+            2, 5,
+            3, 6,
         ])
         layer.bias?.value = Tensor([2], [7, 9])
 

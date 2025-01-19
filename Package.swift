@@ -20,7 +20,7 @@ let package = Package(
                 .product(name: "ArgumentParser", package: "swift-argument-parser"),
                 .product(name: "SnapKit", package: "SnapKit"),
                 "cnnutils",
-                "AlgebraKit",
+                "Tensor",
                 "NNKit"
             ],
             path: "Sources/nnplayground",
@@ -45,21 +45,6 @@ let package = Package(
             publicHeadersPath: "include"
         ),
         .target(
-            name: "AlgebraKit",
-            dependencies: [
-                "cnnutils"
-            ],
-            path: "Sources/AlgebraKit",
-            cSettings: [.define("ACCELERATE_NEW_LAPACK")]
-        ),
-        .testTarget(
-            name: "AlgebraKitTests",
-            dependencies: [
-                "AlgebraKit",
-            ],
-            path: "Sources/AlgebraKitTests"
-        ),
-        .target(
             name: "Tensor",
             dependencies: [
                 .product(name: "Numerics", package: "swift-numerics"),
@@ -77,14 +62,14 @@ let package = Package(
         .target(
             name: "NNKit",
             dependencies: [
-                "AlgebraKit", "cnnutils", "Tensor"
+                "cnnutils", "Tensor"
             ],
             path: "Sources/NNKit"
         ),
         .testTarget(
             name: "NNKitTests",
             dependencies: [
-                "NNKit", "AlgebraKit"
+                "NNKit"
             ],
             path: "Sources/NNKitTests"
         )

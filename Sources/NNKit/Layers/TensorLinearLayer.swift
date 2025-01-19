@@ -1,7 +1,7 @@
 import Tensor
 
 public class TensorLinearLayer: TensorLayer  {
-    var weights: TensorParameter // Shape: [output, input]
+    var weights: TensorParameter // Shape: [input, output]
     var bias: TensorParameter? // Shape: [output]
 
     public var parameters: [TensorParameter] {
@@ -34,7 +34,7 @@ public class TensorLinearLayer: TensorLayer  {
         precondition(input.shape.last == weights.value.shape.first, "Input dimension must match weight's input_dim.")
         var output = input.matmul(weights.value)
         cachedInput = input
-        if let b = bias?.value.broadcastTo(output.shape) {
+        if let b = bias?.value.broadcastTo(output.shape)?.makeContiguous() {
             output.add(b)
         }
         return output
