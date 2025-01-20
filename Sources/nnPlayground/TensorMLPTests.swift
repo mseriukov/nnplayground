@@ -57,13 +57,34 @@ class TensorMLPTests {
                 Tensor([input.count], input.map { Tensor.Element($0) }).normalized(), toOneHot(outputLen: 10, n: output)
             ))
         }
-        
+
         model.train(
             data: examples,
             batchSize: 128,
             epochs: 10,
             lossFunction: MeanSquaredError()
         )
+
+        let targetURL = inputURL.deletingLastPathComponent().appendingPathComponent("model.safetensors")
+        do {
+            var tensors: [String: Tensor] = [:]
+            tensors["linear1.weight"] = linear1.weights.value
+            if let bias = linear1.bias?.value {
+                tensors["linear1.bias"] = bias
+            }
+            tensors["linear2.weight"] = linear2.weights.value
+            if let bias = linear2.bias?.value {
+                tensors["linear2.bias"] = bias
+            }
+            tensors["linear3.weight"] = linear3.weights.value
+            if let bias = linear3.bias?.value {
+                tensors["linear3.bias"] = bias
+            }
+            try SafeTensors.save(to: targetURL, tensors: tensors)
+        } catch {
+            print(error)
+        }
+
         try verify(testURL: testURL)
     }
 

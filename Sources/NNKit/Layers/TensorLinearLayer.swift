@@ -1,8 +1,8 @@
 import Tensor
 
 public class TensorLinearLayer: TensorLayer  {
-    var weights: TensorParameter // Shape: [input, output]
-    var bias: TensorParameter? // Shape: [output]
+    public var weights: TensorParameter // Shape: [input, output]
+    public var bias: TensorParameter? // Shape: [output]
 
     public var parameters: [TensorParameter] {
         [weights, bias].compactMap { $0 }
