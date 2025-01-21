@@ -38,6 +38,33 @@ class TensorMLPTests {
         linear3.parameters.forEach { $0.randomize(&rng) }
     }
 
+    public func run(modelURL: URL, testURL: URL) throws {
+        let tensors = try SafeTensors.loadMemoryMapped(from: modelURL)
+
+        if let weights = tensors["linear1.weight"] {
+            linear1.weights.value = weights
+        }
+        if let bias = tensors["linear1.bias"] {
+            linear1.bias?.value = bias
+        }
+
+        if let weights = tensors["linear2.weight"] {
+            linear2.weights.value = weights
+        }
+        if let bias = tensors["linear2.bias"] {
+            linear2.bias?.value = bias
+        }
+
+        if let weights = tensors["linear3.weight"] {
+            linear3.weights.value = weights
+        }
+        if let bias = tensors["linear3.bias"] {
+            linear3.bias?.value = bias
+        }
+
+        try verify(testURL: testURL)
+    }
+
     public func train(inputURL: URL, testURL: URL) throws {
         let reader = FileReader(fileURL: inputURL)
         try reader.open()

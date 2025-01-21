@@ -28,7 +28,7 @@ public struct SafeTensors {
         let mmapData = try Data(contentsOf: url, options: .mappedIfSafe)
 
         let headerLenData = mmapData.prefix(8)
-        let headerLen = headerLenData.withUnsafeBytes { $0.load(as: Int64.self) }.bigEndian
+        let headerLen = headerLenData.withUnsafeBytes { $0.load(as: Int64.self) }.littleEndian
 
         let binaryDataStart = 8 + headerLen
         let jsonData = mmapData[8..<(8 + headerLen)]

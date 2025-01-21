@@ -26,7 +26,9 @@ struct nnplayground: ParsableCommand {
 
     func getArgumentAndRun(inputURL: URL, testURL: URL) {
         do {
-            try TensorMLPTests().train(inputURL: inputURL, testURL: testURL)
+            let modelURL = inputURL.deletingLastPathComponent().appendingPathComponent("model.safetensors")
+            //try TensorMLPTests().train(inputURL: inputURL, testURL: testURL)
+            try TensorMLPTests().run(modelURL: modelURL, testURL: testURL)
         } catch {
             print("Failed with error: \(error)")
         }
