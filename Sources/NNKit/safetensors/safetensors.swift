@@ -23,8 +23,7 @@ public enum SafeTensorsError: Error {
 public struct SafeTensors {
     public static func loadMemoryMapped(from url: URL) throws -> [String: Tensor] {
         let fileHandle = try FileHandle(forReadingFrom: url)
-        let fileSize = fileHandle.seekToEndOfFile()
-
+        
         let mmapData = try Data(contentsOf: url, options: .mappedIfSafe)
 
         let headerLenData = mmapData.prefix(8)

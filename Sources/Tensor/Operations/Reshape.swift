@@ -1,5 +1,5 @@
 extension Tensor {
-    func reshape(_ newShape: [Int]) -> Self {
+    public func reshape(_ newShape: [Int]) -> Self {
         let newSize = newShape.reduce(1, *)
         let currentSize = shape.reduce(1, *)
 

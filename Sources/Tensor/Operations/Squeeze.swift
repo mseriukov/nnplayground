@@ -24,12 +24,15 @@ extension Tensor {
 
     public mutating func unsqueeze(axis: Int) {
         assert(axis >= 0 && axis <= self.shape.count, "Axis out of bounds.")
-
         var newShape = self.shape
         var newStrides = self.strides
 
         newShape.insert(1, at: axis)
-        newStrides.insert(0, at: axis) // Stride of 0 since it's a singleton dimension
+
+        // If contiguous, stride should be 0 for broadcasting.
+        // If non-contiguous (sliced), inherit closest valid stride.
+        let inheritedStride = (axis > 0) ? newStrides[axis - 1] : newStrides.first ?? 1
+        newStrides.insert(isContiguous ? 0 : inheritedStride, at: axis)
 
         shape = newShape
         strides = newStrides

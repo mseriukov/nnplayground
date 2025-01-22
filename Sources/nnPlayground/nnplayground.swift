@@ -1,6 +1,7 @@
 import ArgumentParser
 import Foundation
 import AppKit
+import Tensor
 
 @main
 struct nnplayground: ParsableCommand {
@@ -25,12 +26,17 @@ struct nnplayground: ParsableCommand {
     }
 
     func getArgumentAndRun(inputURL: URL, testURL: URL) {
-        do {
-            let modelURL = inputURL.deletingLastPathComponent().appendingPathComponent("model.safetensors")
-            //try TensorMLPTests().train(inputURL: inputURL, testURL: testURL)
-            try TensorMLPTests().run(modelURL: modelURL, testURL: testURL)
-        } catch {
-            print("Failed with error: \(error)")
-        }
+//        do {
+//            let modelURL = inputURL.deletingLastPathComponent().appendingPathComponent("model.safetensors")
+//            //try TensorMLPTests().train(inputURL: inputURL, testURL: testURL)
+//            try TensorMLPTests().run(modelURL: modelURL, testURL: testURL)
+//        } catch {
+//            print("Failed with error: \(error)")
+//        }
+        let imageTensor = TestImage.cats.asTensor()
+        let image = imageTensor.slice(
+            start: [0, 0, 0],
+            shape: [1, imageTensor.shape[1], imageTensor.shape[2]]
+        ).asImage()        
     }
 }
