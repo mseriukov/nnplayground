@@ -31,13 +31,18 @@ public struct IDXLoader {
         let data = mmapData[(4 + ndims * 4)...]
 
         let values: [Float32] = switch type {
-        case .uint8: data.withUnsafeBytes({ Array($0.bindMemory(to: UInt8.self)) }).map { Float32($0) }
-        case .int8: data.withUnsafeBytes({ Array($0.bindMemory(to: Int8.self)) }).map { Float32($0) }
-        case .int16: data.withUnsafeBytes({ Array($0.bindMemory(to: Int16.self)) }).map { Float32($0.bigEndian) }
-        case .int32: data.withUnsafeBytes({ Array($0.bindMemory(to: Int32.self)) }).map { Float32($0.bigEndian) }
-        // Most likely wrong endianness.
-        case .float32: data.withUnsafeBytes({ Array($0.bindMemory(to: Float32.self)) }).map { $0 }
-        case .float64: data.withUnsafeBytes({ Array($0.bindMemory(to: Float64.self)) }).map { Float32($0) }
+        case .uint8: data.withUnsafeBytes({ Array($0.bindMemory(to: UInt8.self)) })
+                .map { Float32($0) }
+        case .int8: data.withUnsafeBytes({ Array($0.bindMemory(to: Int8.self)) })
+                .map { Float32($0) }
+        case .int16: data.withUnsafeBytes({ Array($0.bindMemory(to: Int16.self)) })
+                .map { Float32($0.bigEndian) }
+        case .int32: data.withUnsafeBytes({ Array($0.bindMemory(to: Int32.self)) })
+                .map { Float32($0.bigEndian) }
+        case .float32: data.withUnsafeBytes({ Array($0.bindMemory(to: UInt32.self)) })
+                .map { Float32(bitPattern: $0.bigEndian) }
+        case .float64: data.withUnsafeBytes({ Array($0.bindMemory(to: UInt64.self)) })
+                .map { Float32(Float64(bitPattern: $0.bigEndian)) }
         }
         return Tensor(shape, values)
     }
