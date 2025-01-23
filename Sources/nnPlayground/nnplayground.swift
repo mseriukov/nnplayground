@@ -37,6 +37,6 @@ struct nnplayground: ParsableCommand {
         let image = imageTensor.slice(
             start: [0, 0, 0],
             shape: [1, imageTensor.shape[1], imageTensor.shape[2]]
-        ).asImage()        
+        ).asImage()
     }
 }
