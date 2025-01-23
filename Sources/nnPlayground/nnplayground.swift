@@ -33,10 +33,12 @@ struct nnplayground: ParsableCommand {
 //        } catch {
 //            print("Failed with error: \(error)")
 //        }
-        let imageTensor = TestImage.cats.asTensor()
-        let image = imageTensor.slice(
-            start: [0, 0, 0],
-            shape: [1, imageTensor.shape[1], imageTensor.shape[2]]
-        ).asImage()
+        do {
+            let mnistUrl = inputURL.deletingLastPathComponent()
+            let dataset = try MNISTLoader.load(from: mnistUrl)
+
+        } catch {
+            print(error)
+        }
     }
 }
