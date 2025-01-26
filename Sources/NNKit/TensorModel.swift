@@ -30,7 +30,7 @@ public class TensorModel {
     }
 
     public func train(
-        data: [(Tensor, Tensor)],
+        data: (Tensor, Tensor),
         batchSize: Int,
         epochs: Int,
         lossFunction: any LossFunction
@@ -41,11 +41,22 @@ public class TensorModel {
             var totalLoss: Tensor.Element = 0.0
             var batchCount = 0
 
-            let chunkedData = data.chunked(into: batchSize)
-            for batch in chunkedData {
-                let inputs = Tensor.stacked(batch.map { $0.0 })
-                let targets = Tensor.stacked(batch.map { $0.1 })
+            let size = data.1.shape[0]
+            let batches = size / batchSize
+            for batch in 0..<batches {
+                let start = batch * batchSize
 
+                let currentBatchSize = start + batchSize <= size ? batchSize : size - start
+
+                let inputs = data.0.slice(
+                    start: [start, 0],
+                    shape: [currentBatchSize, data.0.shape[1]]
+                )
+                let targets = data.1.slice(
+                    start: [start],
+                    shape: [currentBatchSize]
+                )
+                //print("\(batch) \(inputs.shape) \(targets.shape) \(inputs.strides) \(inputs.offset)")
                 let outputs = forward(inputs)
 
                 let loss = lossFunction.forward(predicted: outputs, actual: targets)
@@ -66,16 +77,11 @@ public class TensorModel {
     }
 
     public func verify(
-        data: [(Tensor, Tensor)],
+        data: (Tensor, Tensor),
         lossFunction: any LossFunction
     ) -> Tensor.Element {
-        var totalLoss: Tensor.Element = 0.0
-        for example in data {
-            let output = forward(example.0)
-            let target = example.1
-            let loss = lossFunction.forward(predicted: output, actual: target)
-            totalLoss += loss.value
-        }
-        return totalLoss / Tensor.Element(data.count)
+        let output = forward(data.0)
+        let target = data.1
+        return lossFunction.forward(predicted: output, actual: target).value
     }
 }

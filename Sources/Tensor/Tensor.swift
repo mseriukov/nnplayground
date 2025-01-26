@@ -54,9 +54,6 @@ public struct Tensor {
         if size < storage.size {
             return false
         }
-        if offset != 0 {
-            return false
-        }
         var expectedStride = 1
         for i in (0..<shape.count).reversed() {
             if strides[i] != expectedStride {

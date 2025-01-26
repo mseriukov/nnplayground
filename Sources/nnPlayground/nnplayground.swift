@@ -36,7 +36,8 @@ struct nnplayground: ParsableCommand {
         do {
             let mnistUrl = inputURL.deletingLastPathComponent()
             let dataset = try MNISTLoader.load(from: mnistUrl)
-
+            let model = MNISTMLP()
+            try model.train(with: dataset)
         } catch {
             print(error)
         }
