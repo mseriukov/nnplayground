@@ -51,9 +51,6 @@ public struct Tensor {
     }
 
     public var isContiguous: Bool {
-        if size < storage.size {
-            return false
-        }
         var expectedStride = 1
         for i in (0..<shape.count).reversed() {
             if strides[i] != expectedStride {

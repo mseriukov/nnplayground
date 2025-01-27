@@ -40,4 +40,24 @@ struct TransposedTests {
             1, 8, 0,
         ])
     }
+
+    @Test
+    func testSlicedTranspose() throws {
+        let a = Tensor(
+            storage: [
+                1, 2, 3,
+            // ----------
+                4, 5, 6,
+                7, 8, 9
+            ],
+            shape: [3, 3]
+        )
+        let b = a.slice(start: [1, 0], shape: [2, 3]).transposed()
+        #expect(b.shape == [3, 2])
+        #expect(b.flatDataSlice == [
+            4, 7,
+            5, 8,
+            6, 9
+        ])
+    }
 }

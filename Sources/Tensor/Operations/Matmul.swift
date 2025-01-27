@@ -23,9 +23,9 @@ extension Tensor {
                     Int32(p),
                     Int32(n),
                     1.0,                // Scaling factor
-                    t1ptr.baseAddress,
+                    t1ptr.baseAddress!.advanced(by: t1.offset),
                     Int32(n),
-                    t2ptr.baseAddress,
+                    t2ptr.baseAddress!.advanced(by: t2.offset),
                     Int32(p),
                     0.0,                // Scaling factor.
                     result,
