@@ -65,22 +65,22 @@ class MNISTMLP {
 
 
 
-    private func fromOneHot(_ tensor: Tensor) -> Tensor{
-        precondition(tensor.shape.count == 2)
-        let tensor = tensor.makeContiguous()
-
-        let classesCount = tensor.shape[0]
-        let batchCount = tensor.shape[1]
-
-        var result = Tensor(zeros: [batchCount])
-
-        for batch in 0..<batchCount {
-            let data = tensor.slice(start: [batch, 0], shape: [1, classesCount]).makeContiguous().storage.data
-            guard let hotIndex = data.indices.max(by: { data[$0] < data[$1] }) else  {
-                fatalError("Can't find hot index")
-            }
-            result.assign(Tensor.Element(hotIndex), at: [batch])
-        }
-        return result
-    }
+//    private func fromOneHot(_ tensor: Tensor) -> Tensor{
+//        precondition(tensor.shape.count == 2)
+//        let tensor = tensor.makeContiguous()
+//
+//        let classesCount = tensor.shape[0]
+//        let batchCount = tensor.shape[1]
+//
+//        var result = Tensor(zeros: [batchCount])
+//
+//        for batch in 0..<batchCount {
+//            let data = tensor.slice(start: [batch, 0], shape: [1, classesCount]).makeContiguous().storage.data
+//            guard let hotIndex = data.indices.max(by: { data[$0] < data[$1] }) else  {
+//                fatalError("Can't find hot index")
+//            }
+//            result.assign(Tensor.Element(hotIndex), at: [batch])
+//        }
+//        return result
+//    }
 }

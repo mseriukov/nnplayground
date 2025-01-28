@@ -1,10 +1,13 @@
 public struct Tensor {
     public typealias Element = Float32
-    public internal(set) var size: Int
     public internal(set) var shape: [Int]
     public internal(set) var strides: [Int]
     public internal(set) var offset: Int
-    public internal(set) var storage: TensorStorage
+    public internal(set) var storage: TensorStorage<Tensor.Element>
+
+    public var size: Int {
+        shape.reduce(1, *)
+    }
 
     public var value: Element {
         storage[0]
@@ -15,14 +18,13 @@ public struct Tensor {
     }
 
     public init(
-        storage: TensorStorage,
+        storage: TensorStorage<Tensor.Element>,
         shape: [Int],
         strides: [Int]? = nil,
         offset: Int = 0
     ) {
         self.storage = storage
         self.shape = shape
-        self.size = shape.reduce(1, *)
         self.offset = offset
 
         self.strides = if let strides {
@@ -48,6 +50,13 @@ public struct Tensor {
 
     public init(zeros shape: [Int]) {
         self.init(shape: shape, value: 0.0)
+    }
+
+    public func copy() -> Tensor {
+        .init(
+            storage: storage.copy(),
+            shape: shape
+        )
     }
 
     public var isContiguous: Bool {
@@ -88,14 +97,14 @@ public struct Tensor {
             return self
         }
 
-        let newStorage = TensorStorage(size: shape.reduce(1, *))
+        let newStorage = TensorStorage<Tensor.Element>(repeating: 0, count: size)
         var newDataIndex = 0
 
         let iterator = TensorIndexSequence(shape: shape)
 
         for indices in iterator {
             let flatIndex = offset + zip(indices, strides).map(*).reduce(0, +)
-            newStorage.data[newDataIndex] = storage.data[flatIndex]
+            newStorage[newDataIndex] = storage[flatIndex]
             newDataIndex += 1
         }
 

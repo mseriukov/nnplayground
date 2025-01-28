@@ -1,39 +1,40 @@
-public final class TensorStorage {
-    public var data: [Tensor.Element]
+public final class TensorStorage<Element> {
+    public var buffer: UnsafeMutableBufferPointer<Element>
 
-    public var size: Int {
-        data.count
+    public init(buffer: UnsafeMutableBufferPointer<Element>) {
+        self.buffer = buffer
     }
 
-    public init(_ data: [Tensor.Element]) {
-        self.data = data
+    public init(repeating value: Element, count: Int) {
+        self.buffer = UnsafeMutableBufferPointer<Element>.allocate(capacity: count)
+        for i in 0..<count {
+            buffer[i] = value
+        }
     }
 
-    public convenience init(
-        size: Int,
-        initialValue: Tensor.Element = 0.0
-    ) {
-        self.init(Array(repeating: initialValue, count: size))
+    deinit {
+        buffer.deallocate()
+    }
+
+    public subscript(index: Int) -> Element {
+        get { buffer[index] }
+        set { buffer[index] = newValue }
+    }
+
+    public init(_ data: [Element]) {
+        self.buffer = UnsafeMutableBufferPointer<Element>.allocate(capacity: data.count)
+        _ = self.buffer.update(from: data)
     }
 
     public func copy() -> TensorStorage {
-        let newStorage = TensorStorage(size: data.count)
-        newStorage.data = data
-        return newStorage
-    }
-
-    public subscript(_ index: Int) -> Tensor.Element {
-        get {
-            data[index]
-        }
-        set {
-            data[index] = newValue
-        }
+        let newBuffer = UnsafeMutableBufferPointer<Element>.allocate(capacity: buffer.count)
+        _ = newBuffer.update(from: buffer)
+        return TensorStorage(buffer: newBuffer)
     }
 }
 
 extension TensorStorage: ExpressibleByArrayLiteral {
-    public convenience init(arrayLiteral elements: Tensor.Element...) {
+    public convenience init(arrayLiteral elements: Element...) {
         self.init(elements)
     }
 }

@@ -13,26 +13,23 @@ extension Tensor {
 
         let result = UnsafeMutablePointer<Element>.allocate(capacity: resultSize)
         defer { result.deallocate() }
-        t1.storage.data.withUnsafeBufferPointer { t1ptr in
-            t2.storage.data.withUnsafeBufferPointer { t2ptr in
-                cblas_sgemm(
-                    CblasRowMajor,      // Row or column major
-                    CblasNoTrans,       // Should transpose t1
-                    CblasNoTrans,       // Should transpose mt2
-                    Int32(m),
-                    Int32(p),
-                    Int32(n),
-                    1.0,                // Scaling factor
-                    t1ptr.baseAddress!.advanced(by: t1.offset),
-                    Int32(n),
-                    t2ptr.baseAddress!.advanced(by: t2.offset),
-                    Int32(p),
-                    0.0,                // Scaling factor.
-                    result,
-                    Int32(p)
-                )
-            }
-        }
+
+        cblas_sgemm(
+            CblasRowMajor,      // Row or column major
+            CblasNoTrans,       // Should transpose t1
+            CblasNoTrans,       // Should transpose mt2
+            Int32(m),
+            Int32(p),
+            Int32(n),
+            1.0,                // Scaling factor
+            t1.storage.buffer.baseAddress!.advanced(by: t1.offset),
+            Int32(n),
+            t2.storage.buffer.baseAddress!.advanced(by: t2.offset),
+            Int32(p),
+            0.0,                // Scaling factor.
+            result,
+            Int32(p)
+        )
         return Self([m, p], Array(UnsafeBufferPointer(start: result, count: resultSize)))
     }
 

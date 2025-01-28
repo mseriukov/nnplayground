@@ -3,7 +3,7 @@ import Accelerate
 extension Tensor {
     public func incremented(by scalar: Element) -> Self {
         let t = makeContiguous()
-        let result = vDSP.add(scalar, t.storage.data)
+        let result = vDSP.add(scalar, t.storage.buffer)
         return Self(shape, Array(result))
     }
 
@@ -17,7 +17,7 @@ extension Tensor {
 
     public static func +(lhs: Self, rhs: Self) -> Self {
         if lhs.shape == rhs.shape, lhs.isContiguous, rhs.isContiguous {
-            let result = vDSP.multiply(addition: (lhs.storage.data, rhs.storage.data), 1)
+            let result = vDSP.multiply(addition: (lhs.storage.buffer, rhs.storage.buffer), 1)
             return Self(lhs.shape, result)
         }
         return performOperationSlow(lhs, rhs, +)
@@ -30,13 +30,13 @@ extension Tensor {
         if isContiguous {
             let other = other.makeContiguous()
             vDSP_vadd(
-                storage.data,
+                storage.buffer.baseAddress!,
                 1,
-                other.storage.data,
+                other.storage.buffer.baseAddress!,
                 1,
-                &storage.data,
+                storage.buffer.baseAddress!,
                 1,
-                vDSP_Length(storage.data.count)
+                vDSP_Length(storage.buffer.count)
             )
             return
         }

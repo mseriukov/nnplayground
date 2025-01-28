@@ -44,7 +44,7 @@ extension Tensor {
 
     public static func -(lhs: Self, rhs: Self) -> Self {
         if lhs.shape == rhs.shape, lhs.isContiguous, rhs.isContiguous {
-            let result = vDSP.subtract(lhs.storage.data, rhs.storage.data)
+            let result = vDSP.subtract(lhs.storage.buffer, rhs.storage.buffer)
             return Self(lhs.shape, result)
         }
         return performOperationSlow(lhs, rhs, -)

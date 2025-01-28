@@ -6,16 +6,14 @@ extension Tensor {
         let t = makeContiguous()
         let result = UnsafeMutablePointer<Element>.allocate(capacity: size)
         defer { result.deallocate() }
-        t.storage.data.withUnsafeBufferPointer { mPtr in
-            vDSP_mtrans(
-                mPtr.baseAddress!,
-                1,
-                result,
-                1,
-                vDSP_Length(t.shape[1]),
-                vDSP_Length(t.shape[0])
-            )
-        }
+        vDSP_mtrans(
+            t.storage.buffer.baseAddress!,
+            1,
+            result,
+            1,
+            vDSP_Length(t.shape[1]),
+            vDSP_Length(t.shape[0])
+        )
         return Self(shape.reversed(), Array(UnsafeBufferPointer(start: result, count: size)))
     }
 }

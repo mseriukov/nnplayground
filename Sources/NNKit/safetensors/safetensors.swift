@@ -55,7 +55,7 @@ public struct SafeTensors {
 
         for (name, tensor) in tensors {
             let startOffset = binaryData.count
-            binaryData.append(tensor.storage.data.withUnsafeBufferPointer { Data(buffer: $0) })
+            binaryData.append(Data(buffer: tensor.storage.buffer) )
             let endOffset = binaryData.count
 
             metadata.tensors[name] = SafeTensorsMetadata.TensorInfo(
