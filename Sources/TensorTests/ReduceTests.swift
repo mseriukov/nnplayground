@@ -126,7 +126,8 @@ struct ReduceTests {
             202,
             218,
             234,
-            250        ])
+            250
+        ])
         #expect(res.shape == [4, 4, 1])
     }
 }

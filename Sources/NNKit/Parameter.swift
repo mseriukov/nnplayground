@@ -1,6 +1,6 @@
 import Tensor
 
-public class TensorParameter {
+public class Parameter {
     public var value: Tensor
     public var gradient: Tensor?
     public internal(set) var name: String?

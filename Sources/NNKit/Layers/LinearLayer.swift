@@ -1,10 +1,10 @@
 import Tensor
 
-public class TensorLinearLayer: TensorLayer  {
-    public var weights: TensorParameter // Shape: [input, output]
-    public var bias: TensorParameter? // Shape: [output]
+public class LinearLayer: Layer  {
+    public var weights: Parameter // Shape: [input, output]
+    public var bias: Parameter? // Shape: [output]
 
-    public var parameters: [TensorParameter] {
+    public var parameters: [Parameter] {
         [weights, bias].compactMap { $0 }
     }
 
@@ -12,13 +12,13 @@ public class TensorLinearLayer: TensorLayer  {
     private var randomGenerator: any RandomNumberGenerator = SystemRandomNumberGenerator()
 
     public init(inputDim: Int, outputDim: Int, includeBias: Bool = true) {
-        weights = TensorParameter(tensor: Tensor.random(
+        weights = Parameter(tensor: Tensor.random(
             shape: [inputDim,
                     outputDim],
             distribution: .kaiming(channels: inputDim),
             generator: &randomGenerator
         ))
-        bias = includeBias ? TensorParameter(tensor: Tensor.random(
+        bias = includeBias ? Parameter(tensor: Tensor.random(
             shape: [outputDim],
             distribution: .kaiming(channels: inputDim),
             generator: &randomGenerator

@@ -7,7 +7,7 @@ struct ActivationLayerTests {
     @Test
     func testSoftmaxForward() throws {
         let input = Tensor([2, 3], [1, 2, 3, 4, 5, 6])
-        let softmaxLayer = TensorActivationLayer(.softmax)
+        let softmaxLayer = ActivationLayer(.softmax)
 
         let output = softmaxLayer.forward(input)
         let rowSums = output.sum(alongAxis: output.shape.count - 1)
@@ -23,7 +23,7 @@ struct ActivationLayerTests {
     @Test
     func testSoftmaxForwardZeroes() throws {
         let input = Tensor([1, 3], [0, 0, 0])
-        let softmaxLayer = TensorActivationLayer(.softmax)
+        let softmaxLayer = ActivationLayer(.softmax)
 
         let output = softmaxLayer.forward(input)
 
@@ -37,7 +37,7 @@ struct ActivationLayerTests {
         let input = Tensor([1, 3], [1, 2, 3])
         let localGradient = Tensor([1, 3], [1, 1, 1])
 
-        let softmaxLayer = TensorActivationLayer(.softmax)
+        let softmaxLayer = ActivationLayer(.softmax)
         _ = softmaxLayer.forward(input)
         let analyticalGradient = softmaxLayer.backward(localGradient)
         let numericalGrad = input.numericalGradient(forwardPass: softmaxLayer.forward)

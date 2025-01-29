@@ -5,21 +5,21 @@ import NNKit
 class MNISTMLP {
     private var rng: any RandomNumberGenerator = SeedableRandomNumberGenerator(seed: 42)
 
-    var linear1 = TensorLinearLayer(inputDim: 784, outputDim: 500)
-    var linear2 = TensorLinearLayer(inputDim: 500, outputDim: 32)
-    var linear3 = TensorLinearLayer(inputDim: 32, outputDim: 10)
+    var linear1 = LinearLayer(inputDim: 784, outputDim: 500)
+    var linear2 = LinearLayer(inputDim: 500, outputDim: 32)
+    var linear3 = LinearLayer(inputDim: 32, outputDim: 10)
 
-    let model: TensorModel
+    let model: Model
 
     init() {
         model = .init(
            layers: [
                linear1,
-               TensorActivationLayer(.relu),
+               ActivationLayer(.relu),
                linear2,
-               TensorActivationLayer(.relu),
+               ActivationLayer(.relu),
                linear3,
-               TensorActivationLayer(.softmax),
+               ActivationLayer(.softmax),
            ],
            optimizer: SGD(
                parameters: [

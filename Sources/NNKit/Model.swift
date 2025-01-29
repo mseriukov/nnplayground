@@ -1,16 +1,16 @@
 import Foundation
 import Tensor
 
-public class TensorModel {
-    private var layers: [any TensorLayer] = []
+public class Model {
+    private var layers: [any Layer] = []
     private let optimizer: any Optimizer
 
-    public init(layers: [any TensorLayer], optimizer: any Optimizer) {
+    public init(layers: [any Layer], optimizer: any Optimizer) {
         self.layers = layers
         self.optimizer = optimizer
     }
 
-    public func parameters() -> [TensorParameter] {
+    public func parameters() -> [Parameter] {
         layers.flatMap { $0.parameters }
     }
 
@@ -72,8 +72,7 @@ public class TensorModel {
                 batchCount += 1
             }
             let duration = Date.now.timeIntervalSince1970 - startTimestamp
-            print("Epoch \(epoch + 1), Loss: \(totalLoss / Tensor.Element(batchCount)), Duration: \(duration)")
-            print("size: \(Diagnostics.totalSize * 4) Bytes")
+            print("Epoch \(epoch + 1), Loss: \(totalLoss / Tensor.Element(batchCount)), Duration: \(duration)")            
         }
     }
 

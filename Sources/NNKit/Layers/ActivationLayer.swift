@@ -1,7 +1,7 @@
 import Tensor
 import Accelerate
 
-public class TensorActivationLayer: TensorLayer {
+public class ActivationLayer: Layer {
     public enum Activation {
         case sigmoid
         case relu
@@ -10,7 +10,7 @@ public class TensorActivationLayer: TensorLayer {
 
     public let activation: Activation
 
-    public let parameters: [TensorParameter] = []
+    public let parameters: [Parameter] = []
 
     private var cachedInput: Tensor?
     private var cachedSoftmax: Tensor?

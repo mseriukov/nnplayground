@@ -10,32 +10,17 @@ struct nnplayground: ParsableCommand {
         completion: .file(),
         transform: URL.init(fileURLWithPath:)
     )
-    var inputURL: URL? = nil
-
-    @Argument(
-        help: "Input file path.",
-        completion: .file(),
-        transform: URL.init(fileURLWithPath:)
-    )
-    var testURL: URL? = nil
+    var modelURL: URL? = nil
 
     mutating func run() throws {
-        guard let inputURL, let testURL else { return }
+        guard let modelURL else { return }
 
-        getArgumentAndRun(inputURL: inputURL, testURL: testURL)
+        getArgumentAndRun(modelURL: modelURL)
     }
 
-    func getArgumentAndRun(inputURL: URL, testURL: URL) {
-//        do {
-//            let modelURL = inputURL.deletingLastPathComponent().appendingPathComponent("model.safetensors")
-//            //try TensorMLPTests().train(inputURL: inputURL, testURL: testURL)
-//            try TensorMLPTests().run(modelURL: modelURL, testURL: testURL)
-//        } catch {
-//            print("Failed with error: \(error)")
-//        }
+    func getArgumentAndRun(modelURL: URL) {
         do {
-            let mnistUrl = inputURL.deletingLastPathComponent()
-            let dataset = try MNISTLoader.load(from: mnistUrl)
+            let dataset = try MNISTLoader.load(from: modelURL)
             let model = MNISTMLP()
             try model.train(with: dataset)
         } catch {

@@ -74,8 +74,8 @@
    </TestAction>
    <LaunchAction
       buildConfiguration = "Release"
-      selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
-      selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
+      selectedDebuggerIdentifier = ""
+      selectedLauncherIdentifier = "Xcode.IDEFoundation.Launcher.PosixSpawn"
       launchStyle = "0"
       useCustomWorkingDirectory = "NO"
       ignoresPersistentStateOnLaunch = "NO"
@@ -94,11 +94,7 @@
       </BuildableProductRunnable>
       <CommandLineArguments>
          <CommandLineArgument
-            argument = "/Users/mseriukov/dev/mseriukov/nnplayground_models/mnist/mnist_train.csv"
-            isEnabled = "YES">
-         </CommandLineArgument>
-         <CommandLineArgument
-            argument = "/Users/mseriukov/dev/mseriukov/nnplayground_models/mnist/mnist_test.csv"
+            argument = "/Users/mseriukov/dev/mseriukov/nnplayground_models/mnist/"
             isEnabled = "YES">
          </CommandLineArgument>
       </CommandLineArguments>

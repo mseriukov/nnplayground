@@ -6,7 +6,7 @@ import Testing
 struct TensorLinearLayerTests {
     @Test()
     func testLinearLayer() throws {
-        let layer = TensorLinearLayer(
+        let layer = LinearLayer(
             inputDim: 3,
             outputDim: 2,
             includeBias: true
