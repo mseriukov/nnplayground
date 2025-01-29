@@ -73,6 +73,7 @@ public class TensorModel {
             }
             let duration = Date.now.timeIntervalSince1970 - startTimestamp
             print("Epoch \(epoch + 1), Loss: \(totalLoss / Tensor.Element(batchCount)), Duration: \(duration)")
+            print("size: \(Diagnostics.totalSize * 4) Bytes")
         }
     }
 

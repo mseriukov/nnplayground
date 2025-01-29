@@ -22,9 +22,9 @@ extension Tensor {
             Int32(p),
             Int32(n),
             1.0,                // Scaling factor
-            t1.storage.buffer.baseAddress!.advanced(by: t1.offset),
+            t1.dataSlice.baseAddress!,
             Int32(n),
-            t2.storage.buffer.baseAddress!.advanced(by: t2.offset),
+            t2.dataSlice.baseAddress!,
             Int32(p),
             0.0,                // Scaling factor.
             result,

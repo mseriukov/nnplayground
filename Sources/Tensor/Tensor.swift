@@ -17,6 +17,10 @@ public struct Tensor {
         shape.count
     }
 
+    public var dataSlice: UnsafeMutableBufferPointer<Tensor.Element> {
+        .init(start: storage.buffer.baseAddress!.advanced(by: offset), count: size)
+    }
+
     public init(
         storage: TensorStorage<Tensor.Element>,
         shape: [Int],
@@ -103,8 +107,7 @@ public struct Tensor {
         let iterator = TensorIndexSequence(shape: shape)
 
         for indices in iterator {
-            let flatIndex = offset + zip(indices, strides).map(*).reduce(0, +)
-            newStorage[newDataIndex] = storage[flatIndex]
+            newStorage[newDataIndex] = storage[flatIndex(indices)]
             newDataIndex += 1
         }
 
@@ -119,7 +122,11 @@ public struct Tensor {
 
     func flatIndex(_ indicies: [Int]) -> Int {
         precondition(indicies.count == shape.count, "Indicies and shape mismatch")
-        return zip(indicies, strides).reduce(0, { $0 + $1.0 * $1.1 }) + offset
+        var result = offset
+        for i in 0..<indicies.count {
+            result += indicies[i] * strides[i]
+        }
+        return result
     }
 
     public func forEachIndex(_ closure: ([Int]) -> Void) {
