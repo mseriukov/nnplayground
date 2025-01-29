@@ -40,7 +40,7 @@ struct ReduceTests {
     @Test
     func test3x3SumHorizontally() throws {
         let res = _3x3.sum(alongAxis: 1)
-        #expect(res.storage.data == [
+        #expect(Array(res.dataSlice) == [
              6,
             15,
             24,
@@ -51,7 +51,7 @@ struct ReduceTests {
     @Test
     func test3x3SumHorizontallyKeepDims() throws {
         let res = _3x3.sum(alongAxis: 1, keepDims: true)
-        #expect(res.storage.data == [
+        #expect(Array(res.dataSlice) == [
              6,
             15,
             24,
@@ -62,7 +62,7 @@ struct ReduceTests {
     @Test
     func test3x3SumVertically() throws {
         let res = _3x3.sum(alongAxis: 0)
-        #expect(res.storage.data == [
+        #expect(Array(res.dataSlice) == [
             12, 15, 18,
         ])
         #expect(res.shape == [3])
@@ -71,7 +71,7 @@ struct ReduceTests {
     @Test
     func test3x3SumVerticallyKeepDims() throws {
         let res = _3x3.sum(alongAxis: 0, keepDims: true)
-        #expect(res.storage.data == [
+        #expect(Array(res.dataSlice) == [
             12, 15, 18,
         ])
         #expect(res.shape == [1, 3])
@@ -80,7 +80,7 @@ struct ReduceTests {
     @Test
     func test4x4SumZero() throws {
         let res = _4x4x4.sum(alongAxis: 0, keepDims: true)
-        #expect(res.storage.data == [
+        #expect(Array(res.dataSlice) == [
             100, 104, 108, 112,
             116, 120, 124, 128,
             132, 136, 140, 144,
@@ -92,7 +92,7 @@ struct ReduceTests {
     @Test
     func test4x4SumOne() throws {
         let res = _4x4x4.sum(alongAxis: 1, keepDims: true)
-        #expect(res.storage.data == [
+        #expect(Array(res.dataSlice) == [
              28,  32,  36,  40,
 
              92,  96, 100, 104,
@@ -107,7 +107,7 @@ struct ReduceTests {
     @Test
     func test4x4SumTwo() throws {
         let res = _4x4x4.sum(alongAxis: 2, keepDims: true)
-        #expect(res.storage.data == [
+        #expect(Array(res.dataSlice) == [
             10,
             26,
             42,

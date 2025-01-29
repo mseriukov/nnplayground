@@ -7,7 +7,7 @@ extension Tensor {
         let result = UnsafeMutablePointer<Element>.allocate(capacity: size)
         defer { result.deallocate() }
         vDSP_mtrans(
-            t.storage.buffer.baseAddress!,
+            t.dataSlice.baseAddress!,
             1,
             result,
             1,

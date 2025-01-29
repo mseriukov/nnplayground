@@ -43,7 +43,7 @@ struct SlicingTests {
             start: [1, 1],
             shape: [2, 2]
         ).makeContiguous()
-        #expect(b.storage.data == [
+        #expect(Array(b.dataSlice) == [
              6,  7,
             10, 11
         ])
@@ -55,7 +55,7 @@ struct SlicingTests {
             start: [1, 1, 1],
             shape: [2, 2, 2]
         ).makeContiguous()
-        #expect(result.storage.data == [
+        #expect(Array(result.dataSlice) == [
             22, 23,
             26, 27,
 
@@ -71,7 +71,7 @@ struct SlicingTests {
             shape: [1, 4, 4]
         ).makeContiguous()
         print(result.shape)
-        #expect(result.storage.data == [
+        #expect(Array(result.dataSlice) == [
              1,  2,  3,  4,
              5,  6,  7,  8,
              9, 10, 11, 12,
@@ -86,7 +86,7 @@ struct SlicingTests {
             shape: [1, 4, 4]
         ).makeContiguous()
         print(result.shape)
-        #expect(result.storage.data == [
+        #expect(Array(result.dataSlice) == [
             49, 50, 51, 52,
             53, 54, 55, 56,
             57, 58, 59, 60,

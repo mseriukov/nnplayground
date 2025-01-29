@@ -35,7 +35,7 @@ struct BatchedMatmulTests {
 
         let c = Tensor.batchedMatMul(a, b)
 
-        #expect(c.storage.data == [
+        #expect(Array(c.dataSlice) == [
               7,  10,
              15,  22,
 

@@ -15,7 +15,7 @@ struct ActivationLayerTests {
         #expect(rowSums.isApproximatelyEqual(to: Tensor(shape: rowSums.shape, value: 1)))
 
         // Verify value range (0 <= output <= 1)
-        for value in output.storage.data {
+        for value in Array(output.dataSlice) {
             #expect(value >= 0 && value <= 1)
         }
     }

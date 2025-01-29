@@ -29,7 +29,7 @@ struct TensorLinearLayerTests {
         let output = layer.forward(input)
         
         #expect(output.shape == [2, 2])
-        #expect(output.storage.data == [
+        #expect(Array(output.dataSlice) == [
             13, 24, // output 1
             19, 39  // output 2
         ])

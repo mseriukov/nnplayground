@@ -16,7 +16,7 @@ struct OperatorsTests {
 
         let res = a - 1
 
-        #expect(res.storage.data == [
+        #expect(Array(res.dataSlice) == [
             0, 1, 2,
             3, 4, 5,
             6, 7, 8
@@ -36,7 +36,7 @@ struct OperatorsTests {
 
         let res = 1 - a
 
-        #expect(res.storage.data == [
+        #expect(Array(res.dataSlice) == [
             -0, -1, -2,
             -3, -4, -5,
             -6, -7, -8
@@ -57,7 +57,7 @@ struct OperatorsTests {
 
         let b = a.incremented(by: 42)
 
-        #expect(b.storage.data == [
+        #expect(Array(b.dataSlice) == [
             43, 44, 45,
             46, 47, 48,
             49, 50, 51
@@ -78,7 +78,7 @@ struct OperatorsTests {
 
         let b = a.slice(start: [1, 0], shape: [1, 3]).incremented(by: 42)
 
-        #expect(b.flatDataSlice == [
+        #expect(Array(b.dataSlice) == [
             46, 47, 48,
         ])
     }

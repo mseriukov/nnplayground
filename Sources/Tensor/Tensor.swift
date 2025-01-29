@@ -18,7 +18,14 @@ public struct Tensor {
     }
 
     public var dataSlice: UnsafeMutableBufferPointer<Tensor.Element> {
-        .init(start: storage.buffer.baseAddress!.advanced(by: offset), count: size)
+        get {
+            .init(start: storage.buffer.baseAddress!.advanced(by: offset), count: size)
+        }
+        set {
+            storage.buffer.baseAddress!
+                .advanced(by: offset)
+                .update(from: newValue.baseAddress!, count: size)
+        }
     }
 
     public init(

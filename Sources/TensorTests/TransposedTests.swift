@@ -14,7 +14,7 @@ struct TransposedTests {
             shape: [3, 3]
         )
         let b = a.transposed().makeContiguous()
-        #expect(b.storage.data == [
+        #expect(Array(b.dataSlice) == [
             1, 4, 7,
             2, 5, 8,
             3, 6, 9
@@ -33,7 +33,7 @@ struct TransposedTests {
         )
         let b = a.transposed().makeContiguous()
         #expect(b.shape == [4, 3])
-        #expect(b.storage.data == [
+        #expect(Array(b.dataSlice) == [
             1, 4, 7,
             2, 5, 8,
             3, 6, 9,
@@ -54,7 +54,7 @@ struct TransposedTests {
         )
         let b = a.slice(start: [1, 0], shape: [2, 3]).transposed()
         #expect(b.shape == [3, 2])
-        #expect(b.flatDataSlice == [
+        #expect(Array(b.dataSlice) == [
             4, 7,
             5, 8,
             6, 9

@@ -49,7 +49,7 @@ struct AssignTests {
         )
 
         a.assign(start: [1, 1], tensor: b)
-        #expect(a.storage.data == [
+        #expect(Array(a.dataSlice) == [
             1,  2,  3,  4,
             5,  0,  1,  8,
             9,  2,  3, 12,
@@ -74,7 +74,7 @@ struct AssignTests {
         )
 
         a.assign(start: [1, 1, 1], tensor: b)
-        #expect(a.storage.data == [
+        #expect(Array(a.dataSlice) == [
             1,  2,  3,  4,
             5,  6,  7,  8,
             9, 10, 11, 12,

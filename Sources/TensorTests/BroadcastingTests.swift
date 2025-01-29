@@ -7,7 +7,7 @@ struct BroadcastingTests {
     func broadcastScalar() throws {
         let a = Tensor(storage: [42], shape: [])
         let b = a.broadcastTo([3, 3])!.makeContiguous()
-        #expect(b.storage.data == [
+        #expect(Array(b.dataSlice) == [
             42, 42, 42,
             42, 42, 42,
             42, 42, 42
@@ -18,7 +18,7 @@ struct BroadcastingTests {
     func broadcastRows() throws {
         let a = Tensor(storage: [1, 2, 3], shape: [1, 3])
         let b = a.broadcastTo([3, 3])!.makeContiguous()
-        #expect(b.storage.data == [
+        #expect(Array(b.dataSlice) == [
             1, 2, 3,
             1, 2, 3,
             1, 2, 3
@@ -36,7 +36,7 @@ struct BroadcastingTests {
             shape: [3, 1]
         )
         let b = a.broadcastTo([3, 3])!.makeContiguous()
-        #expect(b.storage.data == [
+        #expect(Array(b.dataSlice) == [
             1, 1, 1,
             2, 2, 2,
             3, 3, 3

@@ -5,13 +5,13 @@ extension Tensor {
         var mean: Float = 0
         var stdDev: Float = 0
         vDSP_normalize(
-            storage.buffer.baseAddress!,
+            dataSlice.baseAddress!,
             1,
-            storage.buffer.baseAddress!,
+            dataSlice.baseAddress!,
             1,
             &mean,
             &stdDev,
-            vDSP_Length(storage.buffer.count)
+            vDSP_Length(dataSlice.count)
         )
     }
 

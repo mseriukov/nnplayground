@@ -1,6 +1,6 @@
 extension Tensor {
     public mutating func mapInPlace(_ transform: (inout Element) -> Void) {
-        storage.buffer.mapInPlace(transform)
+        dataSlice.mapInPlace(transform)
     }
 
     public func map(_ transform: (Element) -> Element) -> Self {

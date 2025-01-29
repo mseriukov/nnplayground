@@ -8,13 +8,13 @@ extension Tensor {
         if isContiguous {
             let other = other.makeContiguous()
             vDSP_vmul(
-                storage.buffer.baseAddress!,
+                dataSlice.baseAddress!,
                 1,
-                other.storage.buffer.baseAddress!,
+                other.dataSlice.baseAddress!,
                 1,
-                storage.buffer.baseAddress!,
+                dataSlice.baseAddress!,
                 1,
-                vDSP_Length(storage.buffer.count)
+                vDSP_Length(dataSlice.count)
             )
             return
         }
@@ -26,7 +26,7 @@ extension Tensor {
 
     public func multiplied(by scalar: Element) -> Self {
         let t = makeContiguous()
-        let result = vDSP.multiply(scalar, t.storage.buffer)
+        let result = vDSP.multiply(scalar, t.dataSlice)
         return Self(shape, Array(result))
     }
 
@@ -51,7 +51,7 @@ extension Tensor {
 
     public static func *(lhs: Self, rhs: Self) -> Self {
         if lhs.shape == rhs.shape, lhs.isContiguous, rhs.isContiguous {
-            let result = vDSP.multiply(lhs.storage.buffer, rhs.storage.buffer)
+            let result = vDSP.multiply(lhs.dataSlice, rhs.dataSlice)
             return Self(lhs.shape, result)
         }
         return performOperationSlow(lhs, rhs, *)

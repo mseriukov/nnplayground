@@ -20,7 +20,7 @@ struct TensoryTests {
 
         a.mulBroadcasted(b)
 
-        #expect(a.storage.data == [
+        #expect(Array(a.dataSlice) == [
              2,  4,  6,
              8, 10, 12,
             14, 16, 18
@@ -44,7 +44,7 @@ struct TensoryTests {
 
         a.addBroadcasted(b)
 
-        #expect(a.storage.data == [
+        #expect(Array(a.dataSlice) == [
             11, 12, 13,
             14, 15, 16,
             17, 18, 19
