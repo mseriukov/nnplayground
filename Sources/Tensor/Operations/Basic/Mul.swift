@@ -3,7 +3,6 @@ import Accelerate
 extension Tensor {
     public mutating func mul(_ other: Self) {
         precondition(shape == other.shape, "Shape mismatch")
-        ensureUniquelyReferenced()
 
         if isContiguous {
             let other = other.makeContiguous()

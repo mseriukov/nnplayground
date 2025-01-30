@@ -24,8 +24,7 @@ extension Tensor {
     }
 
     public mutating func add(_ other: Self) {
-        precondition(shape == other.shape, "Shape mismatch")
-        ensureUniquelyReferenced()
+        precondition(shape == other.shape, "Shape mismatch")        
 
         if isContiguous {
             let other = other.makeContiguous()

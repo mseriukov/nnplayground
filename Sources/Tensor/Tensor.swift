@@ -86,17 +86,13 @@ public struct Tensor {
     }
 
     public subscript(_ index: [Int]) -> Element {
-        get {
-            return storage[flatIndex(index)]
-        }
-        set {
-            ensureUniquelyReferenced()
-            storage[flatIndex(index)] = newValue
-        }
+        get { storage[flatIndex(index)] }
+        set { storage[flatIndex(index)] = newValue }
     }
 
     public subscript(_ s: Int...) -> Element {
-        self[s]
+        get { self[s] }
+        set { self[s] = newValue }
     }
 
     public mutating func assign(_ value: Element, at index: [Int]) {
@@ -119,12 +115,6 @@ public struct Tensor {
         }
 
         return Self(storage: newStorage, shape: shape)
-    }
-
-    mutating func ensureUniquelyReferenced() {
-        if !isKnownUniquelyReferenced(&storage) {
-            storage = storage.copy()
-        }
     }
 
     func flatIndex(_ indicies: [Int]) -> Int {
