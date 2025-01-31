@@ -104,7 +104,6 @@ struct Im2ColTests {
     func testIm2ColPadded() throws {
         let a = Tensor(
             storage: [
-
                  01, 02, 03,
                  04, 05, 06,
                  07, 08, 09,
@@ -174,6 +173,70 @@ struct Im2ColTests {
             34, 36, 42, 44,
             37, 39, 45, 47,
             38, 40, 46, 48
+        ])
+    }
+
+    @Test
+    func testCol2ImIdentity() throws {
+        let a = Tensor(
+            storage: [
+                01, 02, 03,
+                04, 05, 06,
+                07, 08, 09,
+            ],
+            shape: [1, 1, 3, 3]
+        )
+        let input = try a.im2col(
+            kernelSize: (1, 1),
+            stride: (1, 1),
+            padding: (0, 0),
+            dilation: (1, 1)
+        )
+
+        let res = input.col2im(
+            inputShape: [1, 1, 3, 3],
+            kernelSize: (1, 1),
+            stride: (1, 1),
+            padding: (0, 0),
+            dilation: (1, 1)
+        )
+        #expect(res.shape == [1, 1, 3, 3])
+        #expect(Array(res.dataSlice) == [
+            01, 02, 03,
+            04, 05, 06,
+            07, 08, 09,
+        ])
+    }
+
+    @Test
+    func testCol2ImOverlap() throws {
+        let a = Tensor(
+            storage: [
+                01, 02, 03,
+                04, 05, 06,
+                07, 08, 09,
+            ],
+            shape: [1, 1, 3, 3]
+        )
+        let input = try a.im2col(
+            kernelSize: (2, 2),
+            stride: (1, 1),
+            padding: (0, 0),
+            dilation: (1, 1)
+        )
+
+        let res = input.col2im(
+            inputShape: [1, 1, 3, 3],
+            kernelSize: (2, 2),
+            stride: (1, 1),
+            padding: (0, 0),
+            dilation: (1, 1)
+        )
+        #expect(res.shape == [1, 1, 3, 3])
+        #expect(Array(res.dataSlice) == [
+            01, 04, 03,
+            08, 20, 12,
+            07, 16, 09,
         ])
     }
 }
