@@ -59,6 +59,18 @@ extension Tensor {
 }
 
 extension Tensor {
+    public func sum(alongAxes axes: [Int], keepDims: Bool = false) -> Self {
+        var result = self
+        let adjustedAxes = axes.sorted()
+
+        for i in 0..<adjustedAxes.count {
+            let axis = adjustedAxes[i] - i
+            result = result.reduce(alongAxis: axis, keepDims: keepDims, reduceFunction: +)
+        }
+
+        return result
+    }
+
     public func sum(alongAxis axis: Int, keepDims: Bool = false) -> Self {
         reduce(alongAxis: axis, keepDims: keepDims, reduceFunction: +)
     }
